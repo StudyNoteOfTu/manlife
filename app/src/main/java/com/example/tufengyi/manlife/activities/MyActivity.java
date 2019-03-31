@@ -64,10 +64,7 @@ public class MyActivity  extends AppCompatActivity {
         }
         setContentView(R.layout.activity_mine);
         initViews();
-
         initDatas();
-
-
     }
 
     private void initDatas(){
