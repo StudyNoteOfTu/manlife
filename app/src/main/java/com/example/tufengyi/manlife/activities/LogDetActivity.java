@@ -3,9 +3,14 @@ package com.example.tufengyi.manlife.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Rect;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,7 +60,11 @@ public class LogDetActivity extends BaseActivity implements
         //private List<Player> playerList = new ArrayList<>();
         private List<DayLog> mDayLogs = new ArrayList<>();
 
-        TextView tv_log;
+        private RecyclerView recyclerView;
+        private List<DayLog> mSelectedDayLogs = new ArrayList<>();
+        private LogsAdapter adapter;
+
+//        TextView tv_log;
 
 
         TextView mTextMonthDay;
@@ -126,6 +135,28 @@ public class LogDetActivity extends BaseActivity implements
                                             jsonObject_inner.getString("content")));
                                 }
 
+                                //第一次
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mSelectedDayLogs.clear();
+                                        //这个部分添加日志
+                                        Log.d("TestLog","0-----------"+date);
+                                        for (int j = 0; j< mDayLogs.size(); j++){
+                                            if (mDayLogs.get(j).getDate().equals(date.substring(0,10))) {
+                                                mSelectedDayLogs.add(mDayLogs.get(j));
+                                            }
+                                        }
+                                        if(mSelectedDayLogs.size()==0){
+                                            DayLog dayLog = new DayLog();
+                                            dayLog.setContent("这天没有日志哦");
+                                            mSelectedDayLogs.add(dayLog);
+                                        }
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+
+
                                 initData();
 
                             }catch(Exception e){
@@ -184,20 +215,35 @@ public class LogDetActivity extends BaseActivity implements
         @Override
         protected void initView() {
 
+            recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+            LinearLayoutManager linearLayoutManager =new LinearLayoutManager(LogDetActivity.this);
+            recyclerView.setLayoutManager(linearLayoutManager);
+            adapter = new LogsAdapter();
+            recyclerView.setAdapter(adapter);
+            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                    super.getItemOffsets(outRect, view, parent, state);
+                    outRect.set(16, 16, 16, 8);
+                }
+
+            });
+
+
             Intent intent = getIntent();
             final String catchDate = intent.getStringExtra("date")==null? "":intent.getStringExtra("date");
 
 
-            tv_log = findViewById(R.id.tv_log);
-            tv_log.setMovementMethod(ScrollingMovementMethod.getInstance());
+//            tv_log = findViewById(R.id.tv_log);
+//            tv_log.setMovementMethod(ScrollingMovementMethod.getInstance());
             tv_year1 = findViewById(R.id.tv_year1);
             initList();
 
-            for (int k = 0; k< mDayLogs.size(); k++){
-                if(!catchDate.isEmpty() && mDayLogs.get(k).getDate().equals(catchDate)){
-                    tv_log.setText(mDayLogs.get(k).getContent());
-                }
-            }
+//            for (int k = 0; k< mDayLogs.size(); k++){
+//                if(!catchDate.isEmpty() && mDayLogs.get(k).getDate().equals(catchDate)){
+//                    tv_log.setText(mDayLogs.get(k).getContent());
+//                }
+//            }
 
 
 
@@ -245,6 +291,7 @@ public class LogDetActivity extends BaseActivity implements
             mCalendarView = (CalendarView) findViewById(R.id.calendarView);
             mCalendarView.setWeekView(ColorfulWeekView.class);
             mCalendarView.setMonthView(ColorfulMonthView.class);
+
 
 
             mTextCurrentDay = (TextView) findViewById(R.id.tv_current_day);
@@ -322,15 +369,19 @@ public class LogDetActivity extends BaseActivity implements
 
             Log.d("TestLog","length"+map.size());
 
-            for (int j = 0; j< mDayLogs.size(); j++){
-                if (mDayLogs.get(j).getDate().equals(date)) {
-                    tv_log.setText(mDayLogs.get(j).getContent());
-                    //这里未来会修改，break只是为了获取第一个日志
-                    break;
-                }else{
-                    tv_log.setText("这天没有日志噢！");
-                }
-            }
+//            mSelectedDayLogs.clear();
+
+//            for (int j = 0; j< mDayLogs.size(); j++){
+//                if (mDayLogs.get(j).getDate().equals(date)) {
+////                    mSelectedDayLogs.add(mDayLogs.get(j));
+////                    tv_log.setText(mDayLogs.get(j).getContent());
+//                    //这里未来会修改，break只是为了获取第一个日志
+//                    break;
+//                }else{
+////                    tv_log.setText("这天没有日志噢！");
+//                }
+//            }
+//            adapter.notifyDataSetChanged();
 
 
 
@@ -381,15 +432,29 @@ public class LogDetActivity extends BaseActivity implements
                     tv_year1.setText(String.valueOf(year));
 
 
+                    mSelectedDayLogs.clear();
+
+                    //这个部分添加日志
                     for (int j = 0; j< mDayLogs.size(); j++){
+
                         if (mDayLogs.get(j).getDate().equals(year+"-"+month+"-"+day)) {
-                            tv_log.setText(mDayLogs.get(j).getContent());
+                            mSelectedDayLogs.add(mDayLogs.get(j));
+                            Log.d("TestLog","increased"+mSelectedDayLogs.size());
+//                            tv_log.setText(mDayLogs.get(j).getContent());
                             //这里未来会修改，break只是为了获取第一个日志
-                            break;
-                        }else{
-                            tv_log.setText("这天没有日志噢！");
                         }
                     }
+
+                    if(mSelectedDayLogs.size()==0){
+                        DayLog dayLog = new DayLog();
+                        dayLog.setContent("这天没有日志哦");
+                        mSelectedDayLogs.add(dayLog);
+                    }
+
+                    adapter.notifyDataSetChanged();
+                    //如果没有内容，就加一个空的Daylog
+
+
 
                    // int length = mDayLogs.size();
 
@@ -470,5 +535,43 @@ public class LogDetActivity extends BaseActivity implements
             // mTextMonthDay.setText(String.valueOf(year));
             tv_year1.setText(String.valueOf(year));
         }
+
+    private class LogsAdapter extends RecyclerView.Adapter<LogsAdapter.ViewHolder> {
+        //创建list集合，泛型为之前定义的实体类
+        //添加构造方法
+        public LogsAdapter() { }
+        //在onCreateViewHolder（）中完成布局的绑定，同时创建ViewHolder对象，返回ViewHolder对象
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_logs,parent,false);
+            LogsAdapter.ViewHolder holder = new LogsAdapter.ViewHolder(view);
+            return holder;
+        }
+
+
+        //在内部类中完成对控件的绑定
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            private TextView tv_log;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                tv_log = (TextView) itemView.findViewById(R.id.tv_log);
+            }
+        }
+
+
+        //在onBindViewHolder（）中完成对数据的填充
+        @Override
+        public void onBindViewHolder(final LogsAdapter.ViewHolder holder, int i) {
+           holder.tv_log.setText(mSelectedDayLogs.get(i).getContent());
+        }
+
+        //这个方法很简单了，返回playerList中的子项的个数
+        @Override
+        public int getItemCount() {
+            return mSelectedDayLogs.size();
+        }
+    }
 
     }

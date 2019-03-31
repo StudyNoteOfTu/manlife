@@ -23,6 +23,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.bean.DailyAssignment;
 import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
@@ -59,7 +60,7 @@ public class PreviewActivity extends AppCompatActivity {
             R.drawable.sport,
             R.drawable.doctor
     };
-    private DailyAssDao dao;
+//    private DailyAssDao dao;
 
 //    Bitmap cachebmp;
 
@@ -88,13 +89,17 @@ public class PreviewActivity extends AppCompatActivity {
 
         //这里改成从后台获取，加载中的图就提示用户正在加载图片
 
-        dao = new DailyAssDao(this);
-        temp = dao.queryAll();
-        for(int i=0;i<temp.size();i++){
-            if(temp.get(i).getDate().equals(date)){
-                list.add(temp.get(i));
-            }
-        }
+//        dao = new DailyAssDao(this);
+//        temp = dao.queryAll();
+//        for(int i=0;i<temp.size();i++){
+//            if(temp.get(i).getDate().equals(date)){
+//                list.add(temp.get(i));
+//            }
+//        }
+
+        list.clear();
+        list.addAll(MyApplication.getInstance().getList());
+        Log.d("TestPreview","size"+MyApplication.getInstance().getList().size());
 
         initViews();
 

@@ -85,6 +85,10 @@ public class LoginActivity extends AppCompatActivity {
             SPManager.setting_add("img_path","",LoginActivity.this);
         }
 
+        if(SPManager.setting_get("sound",LoginActivity.this)==null){
+            SPManager.setting_add("sound","true",LoginActivity.this);
+        }
+
         registerToWX();
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){

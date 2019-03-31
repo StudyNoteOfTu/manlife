@@ -9,10 +9,12 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import android.widget.Toast;
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.bean.Flag;
 import com.example.tufengyi.manlife.utils.tools.ScreenUtils;
+import com.example.tufengyi.manlife.view.CustomSwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -107,21 +110,11 @@ public class FlagsActivity extends AppCompatActivity {
 ////            startActivity(intent);
 //        }else {
             initDatas();
-            mRecyclerView = (RecyclerView) findViewById(R.id.flags_recyclerView);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(FlagsActivity.this);
-            mRecyclerView.setLayoutManager(linearLayoutManager);
-            adapter = new FlagsAdapter(mFlags);
-            mRecyclerView.setAdapter(adapter);
-            mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-                @Override
-                public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                    super.getItemOffsets(outRect, view, parent, state);
-                    outRect.set(16, 16, 16, 8);
-                }
 
-            });
             initViews();
 //        }
+
+
 
 
 
@@ -136,6 +129,40 @@ public class FlagsActivity extends AppCompatActivity {
     }
 
     private void initViews(){
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.flags_recyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(FlagsActivity.this);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        adapter = new FlagsAdapter(mFlags);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                outRect.set(16, 16, 16, 8);
+            }
+
+        });
+//        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState){
+//                super.onScrollStateChanged(recyclerView,newState);
+//                //在newState为滑动到底部时候
+//                if(newState == RecyclerView.SCROLL_STATE_IDLE){
+//                    Log.d("TestFlag","the bottom");
+//                    //获取数据，添加数据
+//                }
+//            }
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy){
+//                super.onScrolled(recyclerView,dx,dy);
+//                //在滑动完成后，拿到最后一个课件的item的位置
+//                //... =  linearLayoutManager.findLastVisibeItemPosition();
+//            }
+//        });
+
+
         ImageView btn_back = (ImageView) findViewById(R.id.back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,24 +180,63 @@ public class FlagsActivity extends AppCompatActivity {
             }
         });
 
+
+        final CustomSwipeRefreshLayout swipeRefreshLayout = (CustomSwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setEnabled(true);
+        swipeRefreshLayout.setOnRefreshListener(new CustomSwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //...获取数据的操作
+
+                //swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
     }
 
 
 
 
-    private class FlagsAdapter extends RecyclerView.Adapter<FlagsAdapter.ViewHolder> {
+    private class FlagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //创建list集合，泛型为之前定义的实体类
         private List<Flag> mFlags;
+
+        private boolean hasMore = true;
+
+
+
+        private int normalType = 0; //第一种ViewType 正常的item
+        private int footType  = 1;  //第二种ViewType，底部的提示View
+
+        private Handler mHandler = new Handler(Looper.getMainLooper());//获取主线程的Handler
+
+
+        public boolean isHasMore() {
+            return hasMore;
+        }
+
+        public void setHasMore(boolean hasMore) {
+            this.hasMore = hasMore;
+        }
+
+
         //添加构造方法
         public FlagsAdapter(List<Flag> mFlags) {
             this.mFlags = mFlags;
         }
         //在onCreateViewHolder（）中完成布局的绑定，同时创建ViewHolder对象，返回ViewHolder对象
         @Override
-        public FlagsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.flags_item,parent,false);
-            FlagsAdapter.ViewHolder holder = new FlagsAdapter.ViewHolder(view);
-            return holder;
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            if(viewType == normalType){
+                return new FlagsAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.flags_item,parent,false));
+            }else{
+                return new FlagsAdapter.FootHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_footer_flag,parent,false));
+            }
+
+//            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.flags_item,parent,false);
+//            FlagsAdapter.ViewHolder holder = new FlagsAdapter.ViewHolder(view);
+//            return holder;
         }
 
 
@@ -196,55 +262,109 @@ public class FlagsActivity extends AppCompatActivity {
             }
         }
 
+        public class FootHolder extends RecyclerView.ViewHolder{
+            private TextView footer;
+
+            public FootHolder(View itemView){
+                super(itemView);
+                footer = (TextView) itemView.findViewById(R.id.tv_footer);
+            }
+        }
+
 
         //在onBindViewHolder（）中完成对数据的填充
         @Override
-        public void onBindViewHolder(final FlagsAdapter.ViewHolder holder, int i) {
+        public void onBindViewHolder( RecyclerView.ViewHolder holder, int i) {
             //每次adapter.notifyDataSetChanged();都会重新绑定一次
 //            if(i==1){
 //                Toast.makeText(FlagsActivity.this, "adding", Toast.LENGTH_SHORT).show();
 //            }
-            final Flag flag = mFlags.get(i);
-            holder.tv_name.setText(flag.getID());
-            holder.tv_date.setText(flag.getDate());
-            holder.tv_updates.setText(flag.getUpdates());
-            holder.tv_updates.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(FlagsActivity.this,FlagDetailActivity.class);
+            if(holder instanceof ViewHolder){
+                final FlagsAdapter.ViewHolder viewHolder = (FlagsAdapter.ViewHolder) holder;
+
+                final Flag flag = mFlags.get(i);
+                viewHolder.tv_name.setText(flag.getID());
+                viewHolder.tv_date.setText(flag.getDate());
+                viewHolder.tv_updates.setText(flag.getUpdates());
+                viewHolder.tv_updates.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(FlagsActivity.this,FlagDetailActivity.class);
 //                    intent.putExtra("id",flag.getId());
-                    intent.putExtra("name",flag.getID());
-                    intent.putExtra("date",flag.getDate());
-                    intent.putExtra("updates",flag.getUpdates());
-                    intent.putExtra("comments",flag.getComments());
-                    intent.putExtra("likes",flag.getLikes());
-                    startActivity(intent);
-                }
-            });
+                        intent.putExtra("name",flag.getID());
+                        intent.putExtra("date",flag.getDate());
+                        intent.putExtra("updates",flag.getUpdates());
+                        intent.putExtra("comments",flag.getComments());
+                        intent.putExtra("likes",flag.getLikes());
+                        startActivity(intent);
+                    }
+                });
 
-            holder.num_comments.setText(""+flag.getComments());
-            holder.num_likes.setText(""+flag.getLikes());
-            holder.btn_likes.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                viewHolder.num_comments.setText(""+flag.getComments());
+                viewHolder.num_likes.setText(""+flag.getLikes());
+                viewHolder.btn_likes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-                    //添加后台事件
-                    holder.btn_likes.setBackgroundResource(R.drawable.afterlike);
-                    holder.num_likes.setText(""+(flag.getLikes()+1));
-                }
-            });
-            holder.btn_comments.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showDialog(holder.num_comments,holder.btn_comments,flag);
-                }
-            });
+                        //添加后台事件
+                        viewHolder.btn_likes.setBackgroundResource(R.drawable.afterlike);
+                        viewHolder.num_likes.setText(""+(flag.getLikes()+1));
+                    }
+                });
+                viewHolder.btn_comments.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showDialog(viewHolder.num_comments,viewHolder.btn_comments,flag);
+                    }
+                });
+            }else{
+                final FlagsAdapter.FootHolder footHolder = (FlagsAdapter.FootHolder) holder;
+
+                //点击增加更多
+                footHolder.footer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //添加数据，完成后 提示更新，过程中设置其文字为 正在更新 结束后回到 点击加载更多 这里记得设置是否可点击
+                        Calendar cal = Calendar.getInstance();
+                        for(int i=0;i<20;i++){
+                            Flag flag = new Flag("NUM"+i,(cal.get(Calendar.MONTH)+1)+"月"+cal.get(Calendar.DAY_OF_MONTH)+"日"+" "+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE),"hehehaha"+i,20*i%13,18*i%7);
+                            mFlags.add(flag);
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
+                //这里补逻辑， 通过判断数据是否增加，如果增加了就显示正在加载更多，如果没有增加就显示没有更多数据了？
+
+//                if(hasMore){
+//                    footHolder.footer.setText("正在加载更多...");
+//                }else{
+//                    footHolder.footer.setText("没有更多数据了");
+//
+//                }
+
+            }
+
         }
 
         //这个方法很简单了，返回playerList中的子项的个数
+        //这类增加了一个footer，+1
         @Override
         public int getItemCount() {
+            return mFlags.size() + 1;
+        }
+
+        public int getRealLastPosition(){
             return mFlags.size();
+        }
+
+        @Override
+        public int getItemViewType(int position){
+            if(position == getItemCount() - 1){
+                return footType;
+            } else {
+                return normalType;
+            }
         }
     }
 

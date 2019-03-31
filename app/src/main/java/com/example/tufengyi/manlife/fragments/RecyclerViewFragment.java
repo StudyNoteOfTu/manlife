@@ -59,7 +59,6 @@ public class RecyclerViewFragment extends Fragment {
     private DailyAssDao dailyAssDao;
     private List<DailyAssignment> mDailyAss = new ArrayList<DailyAssignment>();
     private boolean up = true;
-    private SettingsDao settingsDao;
     private SoundPool sp;//声明一个SoundPool
     private int music;//定义一个整型，用load()：来设置soundID
 
@@ -109,9 +108,9 @@ public class RecyclerViewFragment extends Fragment {
         }
         dailyAssDao = new DailyAssDao(getContext());
 //        punchedAssDao = new PunchedAssDao(getContext());
-        settingsDao = new SettingsDao(getContext());
+//        settingsDao = new SettingsDao(getContext());
 
-        if(settingsDao.queryAll().get(0).getUp() == 1){//开启
+        if(SPManager.setting_get("sound",getContext()).equals("true")){//开启
             up = true;
         }else{
             up = false;

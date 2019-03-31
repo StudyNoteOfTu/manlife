@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,8 @@ public class FlagDetailActivity  extends AppCompatActivity {
 
     private ImageView iv_comments;
     private ImageView iv_like;
+    private LinearLayout ll_comment;
+    private LinearLayout ll_like;
 
     private ListView listView;
     private List<Comments> mComments = new ArrayList<>();
@@ -44,7 +47,7 @@ public class FlagDetailActivity  extends AppCompatActivity {
     int num_comments =0;
     int num_likes = 0;
     MyAdapter adapter;
-    private Flag flag;
+    private Flag flag = new Flag();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,23 +76,43 @@ public class FlagDetailActivity  extends AppCompatActivity {
         TextView tv_name = findViewById(R.id.tv_name);
         TextView tv_date = findViewById(R.id.tv_date);
         TextView tv_contentOfFlag = findViewById(R.id.tv_contentOfFlag);
+        ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
+        ll_like = (LinearLayout) findViewById(R.id.ll_like);
         final TextView tv_comments = findViewById(R.id.tv_comment_num);
         final TextView tv_likes = findViewById(R.id.tv_like_num);
+
+
+        iv_comments = (ImageView)findViewById(R.id.btn_toComment);
+
+        iv_like =(ImageView) findViewById(R.id.btn_like);
 
         tv_comments.setText(""+flag.getComments());
         tv_likes.setText(""+flag.getLikes());
 
+        //这里点击范围小，考虑吧两个控件放在一个Layout中
 
-        iv_comments = (ImageView)findViewById(R.id.btn_toComment);
-        iv_comments.setOnClickListener(new View.OnClickListener() {
+//        iv_comments.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                showDialog(tv_comments,iv_comments,flag);
+//            }
+//        });
+//
+//        iv_like.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                iv_like.setBackgroundResource(R.drawable.afterlike);
+//                tv_likes.setText(String.valueOf(flag.getLikes()+1));
+//            }
+//        });
+        ll_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDialog(tv_comments,iv_comments,flag);
             }
         });
 
-        iv_like =(ImageView) findViewById(R.id.btn_like);
-        iv_like.setOnClickListener(new View.OnClickListener() {
+        ll_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 iv_like.setBackgroundResource(R.drawable.afterlike);
@@ -97,7 +120,6 @@ public class FlagDetailActivity  extends AppCompatActivity {
             }
         });
 
-//
         tv_name.setText(name);
         tv_date.setText(date);
         tv_contentOfFlag.setText(content);

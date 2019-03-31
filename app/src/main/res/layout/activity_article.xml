@@ -192,22 +192,17 @@
 
 
     <LinearLayout
-        android:background="@drawable/edit_back2"
         android:layout_marginTop="20dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <TextView
-        android:layout_margin="10dp"
-        android:textSize="17sp"
-        android:text="这天没有日志噢！"
-        android:id="@+id/tv_log"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minLines="4"
-        android:maxLines="8"
-        android:scrollbars="horizontal"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+
     </LinearLayout>
 
 

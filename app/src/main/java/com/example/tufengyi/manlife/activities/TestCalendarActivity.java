@@ -27,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.base.BaseActivity;
 import com.example.tufengyi.manlife.bean.DailyAssignment;
@@ -84,6 +85,11 @@ public class TestCalendarActivity extends BaseActivity implements
     //private List<Player> playerList = new ArrayList<>();
     private List<PunchedAss> mPunchedAss = new ArrayList<>();
     private List<Object> mObjects =new ArrayList<>();
+
+    //传给PreviewActivity
+    private List<DailyAssignment> dailyAssignments = new ArrayList<>();
+
+
 //    private PunchedAssDao punchedAssDao;
     private LinearLayoutManager linearLayoutManager;
 
@@ -92,6 +98,7 @@ public class TestCalendarActivity extends BaseActivity implements
     private int mIndex=0;
 
     private int requestCount = 0;
+    private boolean hasResponse = false;
 
     TextView mTextMonthDay;
 
@@ -124,6 +131,7 @@ public class TestCalendarActivity extends BaseActivity implements
                     if(requestCount<1){
                         Log.d("TestLog","count"+requestCount);
                         requestCount++;
+                        hasResponse = true;
                     }else{
                         Log.d("TestLog","begin init list");
                         initList();
@@ -133,6 +141,7 @@ public class TestCalendarActivity extends BaseActivity implements
             }
         }
     };
+
 
 
     @Override
@@ -241,15 +250,25 @@ public class TestCalendarActivity extends BaseActivity implements
         });
 
 
+        //生成今日打卡图
         ll_print = findViewById(R.id.ll_print);
         ll_print.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ll_menu.setVisibility(View.GONE);
-                darkView.setVisibility(View.GONE);
-                isMenuOpen = false;
-                Intent intent = new Intent(TestCalendarActivity.this,PreviewActivity.class);
-                startActivity(intent);
+                //把今天的内容穿进去，判断是否已经从网络上加载了所有数据
+                if(hasResponse) {
+                    MyApplication.getInstance().setList(dailyAssignments);
+
+                    Log.d("TestPreview","size now"+ MyApplication.getInstance().getList().size());
+
+                    ll_menu.setVisibility(View.GONE);
+                    darkView.setVisibility(View.GONE);
+                    isMenuOpen = false;
+                    Intent intent = new Intent(TestCalendarActivity.this, PreviewActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(TestCalendarActivity.this, "请稍后...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -444,9 +463,6 @@ public class TestCalendarActivity extends BaseActivity implements
                                         DateUtil.full_stampToDate(jsonObject_inner.getLong("time")),
                                         jsonObject_inner.getLong("time"),
                                         jsonObject_inner.getString("content")));
-
-
-
                             }
 
 
@@ -519,15 +535,23 @@ public class TestCalendarActivity extends BaseActivity implements
 
                                 JSONArray sign_inArray = jsonObject_inner.getJSONArray("sign_in");
                                 Log.d("TestLog",sign_inArray.length()+"signArray length  -- id" + jsonObject_inner.getString("id"));
+                                DailyAssignment dailyAssignment = null;
                                 for(int j = 0; j < sign_inArray.length() ; j++){
-                                    mPunchedAss.add(new DailyAssignment(jsonObject_inner.getString("id"),
+                                    //注意这里的参数progress为持续天数，等于数组大小
+                                    dailyAssignment = new DailyAssignment(jsonObject_inner.getString("id"),
                                             DateUtil.full_stampToDate((long)sign_inArray.get(j)),
                                             jsonObject_inner.getString("title"),
                                             Integer.parseInt(jsonObject_inner.getString("icon_id")),
-                                            "no",0));
+                                            "no",sign_inArray.length());
+                                    mPunchedAss.add(dailyAssignment);
+                                    //如果是今天，那么就添加到 dailyAssignments集合中
+                                    String today = DateUtil.stampToDate(System.currentTimeMillis());
+                                    if(DateUtil.full_stampToDate((long)sign_inArray.get(j)).substring(0,10).equals(today)){
+                                        //如果是今天
+                                        dailyAssignments.add(dailyAssignment);
+                                        Log.d("TestPreview","dailyAssignments size inreased, now");
+                                    }
                                 }
-//                                    public DailyAssignment(String objId,String date,String title,int icon,String finish,int progress){
-
                             }
 
 

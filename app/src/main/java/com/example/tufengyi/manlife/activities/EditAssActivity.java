@@ -177,63 +177,39 @@ public class EditAssActivity extends AppCompatActivity {
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StringBuffer sb = new StringBuffer();
-                Calendar cal_buff = Calendar.getInstance();
-
-                sb.append(cal_buff.get(Calendar.YEAR));
-                sb.append("-");
-                if(cal_buff.get(Calendar.MONTH)+1>=0 && cal_buff.get(Calendar.MONTH)+1<10){
-                    sb.append("0");
-                }
-                sb.append(cal_buff.get(Calendar.MONTH)+1);
-                sb.append("-");
-                if(cal_buff.get(Calendar.DAY_OF_MONTH)>=0 && cal_buff.get(Calendar.DAY_OF_MONTH)<10){
-                    sb.append("0");
-                }
-                sb.append(cal_buff.get(Calendar.DAY_OF_MONTH));
-                //这里可能会出问题，如何把StringBuffer转为String
-                String date = String.valueOf(sb);
                 String title = tv_dailyAss.getText().toString();
-                int iconNow = chosedIcon;
-                if(yes ==1 ){//有传来
+                //这里进行一下判断， title是否为空
+                if(title.trim().isEmpty()){
+                    showDialog("");
+                }else{
+                    if(yes ==1 ){//有传来
+                        //这里进行put更新
+                        PUT(title);
+                    }else {
+                        //如果没传来，那么就是自定义
+                        //这里进行post添加
+                        POST(title);
+                        //DailyAssignment ass = new DailyAssignment(date, title, iconNow, "no", 0);
+                        //dailyAssDao.insert(ass);
+                    }
+                    Toast toast = new Toast(getApplicationContext());
+                    //创建一个填充物，用于填充Toast
+                    LayoutInflater inflater = LayoutInflater.from(EditAssActivity.this);
+                    //填充物来自的xml文件，在这里改成一个view
+                    //实现xml到view的转变
+                    View view = inflater.inflate(R.layout.toast_ok, null);
+                    toast.setView(view);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    showMyToast(toast, 1000);
 
-                    //这里进行put更新
-                    PUT(title);
+                    //Toast.makeText(EditAssActivity.this, "succeeded", Toast.LENGTH_SHORT).show();
 
+                    yes = 0;//初始化
 
-                }else {
-                    //如果没传来，那么就是自定义
-                    //这里进行post添加
-
-                    POST(title);
-
-                    //DailyAssignment ass = new DailyAssignment(date, title, iconNow, "no", 0);
-                    //dailyAssDao.insert(ass);
+                    Intent intent = new Intent(EditAssActivity.this,MainActivity.class);
+                    startActivity(intent);
                 }
-
-                Toast toast = new Toast(getApplicationContext());
-                //创建一个填充物，用于填充Toast
-                LayoutInflater inflater = LayoutInflater.from(EditAssActivity.this);
-                //填充物来自的xml文件，在这里改成一个view
-                //实现xml到view的转变
-                View view = inflater.inflate(R.layout.toast_ok, null);
-                //不一定需要，找到xml里面的组件，摄制组建里面的具体内容
-//                ImageView imageView1 = view.findViewById(R.id.img_toast);
-//                TextView textView1 = view.findViewById(R.id.tv_toast);
-//                imageView1.setImageResource(R.drawable.smile);
-//                textView1.setText("哈哈哈哈哈");
-                toast.setView(view);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.setDuration(Toast.LENGTH_SHORT);
-                showMyToast(toast, 1000);
-
-
-                //Toast.makeText(EditAssActivity.this, "succeeded", Toast.LENGTH_SHORT).show();
-
-                yes = 0;//初始化
-
-                Intent intent = new Intent(EditAssActivity.this,MainActivity.class);
-                startActivity(intent);
             }
         });
     }

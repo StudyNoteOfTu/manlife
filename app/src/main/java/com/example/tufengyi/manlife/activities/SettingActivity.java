@@ -7,6 +7,7 @@ import android.widget.ImageView;
 
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.bean.Settings;
+import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.dao.SettingsDao;
 
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ import java.util.List;
 
 public class SettingActivity  extends AppCompatActivity {
 
-    private List<Settings> mSettings = new ArrayList<>();
-    private SettingsDao settingsDao;
+//    private List<Settings> mSettings = new ArrayList<>();
+//    private SettingsDao settingsDao;
 
     private boolean b_daka = true;
 
@@ -29,12 +30,13 @@ public class SettingActivity  extends AppCompatActivity {
         final ImageView daka = findViewById(R.id.daka);
 ;
 
-        settingsDao = new SettingsDao(SettingActivity.this);
-        mSettings = settingsDao.queryAll();
+//        settingsDao = new SettingsDao(SettingActivity.this);
+//        mSettings = settingsDao.queryAll();
 
-        final Settings set1 = mSettings.get(0);
+//        final Settings set1 = mSettings.get(0);
+        String sound = SPManager.setting_get("sound",SettingActivity.this);
 
-        if(set1.getUp()==1){
+        if(sound.equals("true")){
             b_daka = true;
             daka.setBackgroundResource(R.drawable.switchup);
         }else{
@@ -58,13 +60,13 @@ public class SettingActivity  extends AppCompatActivity {
                 if(b_daka){
                     daka.setBackgroundResource(R.drawable.switchdown);
                     b_daka = false;
-                    set1.setUp(0);
-                    settingsDao.update(set1);
+                    SPManager.setting_add("sound","false",SettingActivity.this);
+
                 }else {
                     daka.setBackgroundResource(R.drawable.switchup);
                     b_daka = true;
-                    set1.setUp(1);
-                    settingsDao.update(set1);
+                    SPManager.setting_add("sound","true",SettingActivity.this);
+
                 }
             }
         });
