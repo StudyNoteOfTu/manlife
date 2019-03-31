@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.tufengyi.manlife.view.SwipeItemLayout
+    android:background="#eeeeee"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:layout_height="87dp">
+    <LinearLayout
+        android:background="@drawable/edit_back"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:id="@+id/main">
+
+        <ImageView
+            android:id="@+id/img_ass"
+            android:layout_gravity="center_vertical"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"/>
+
+        <LinearLayout
+            android:layout_marginLeft="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:textColor="#000000"
+                android:textSize="17sp"
+                android:id="@+id/tv_dailyAss"
+                android:text="早上喝水"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_marginTop="2dp"
+                android:id="@+id/tv_progress"
+                android:textSize="12sp"
+                android:text="已坚持3天"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_marginRight="20dp"
+            android:id="@+id/btn_finish"
+            android:src="@drawable/gou"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_gravity="center"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/btn_edit"
+            android:text="编辑"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:background="#78c7e5"
+            android:layout_width="80dp"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/btn_delete"
+            android:text="删除"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:background="@drawable/backcir"
+            android:layout_width="80dp"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+
+</com.example.tufengyi.manlife.view.SwipeItemLayout>

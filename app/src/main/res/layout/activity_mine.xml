@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<RelativeLayout
+    android:background="#eeeeee"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/topwindow"
+        android:layout_alignParentTop="true"
+        android:background="#f2b600"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"/>
+
+
+    <LinearLayout
+        android:id="@+id/ll_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/ll_downbar"
+       android:layout_below="@id/topwindow"
+        android:layout_marginBottom="0dp"
+        android:background="#eeeeee"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="155dp"
+            android:background="#ffc107">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/head_img"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="30dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/head_img">
+
+                <EditText
+                    android:id="@+id/edt_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="top"
+                    android:background="#ffc107"
+                    android:text="加载中..."
+                    android:textColor="#ffffff"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/img_pen"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_toRightOf="@id/edt_name"
+                    android:src="@drawable/editlight" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:id="@+id/btn_toFlag"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/edit_back"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16px"
+                android:gravity="center_vertical"
+                android:text="我的FLAG"
+                android:textColor="#464646"
+                android:textSize="17sp" />
+
+            <!--<ImageView-->
+            <!--android:layout_width="20dp"-->
+            <!--android:layout_height="20dp"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginRight="10dp"-->
+            <!--android:src="@drawable/mineright" />-->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_toTimeLine"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/edit_back"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16px"
+                android:gravity="center_vertical"
+                android:text="我的时间轴"
+                android:textColor="#464646"
+                android:textSize="17sp" />
+
+            <!--<ImageView-->
+                <!--android:layout_width="20dp"-->
+                <!--android:layout_height="20dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--android:src="@drawable/mineright" />-->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_toSettings"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/edit_back"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16px"
+                android:gravity="center_vertical"
+                android:text="设置"
+                android:textColor="#464646"
+                android:textSize="17sp" />
+
+            <!--<ImageView-->
+            <!--android:layout_width="20dp"-->
+            <!--android:layout_height="20dp"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginRight="10dp"-->
+            <!--android:src="@drawable/mineright" />-->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_toProblem"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/edit_back"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16px"
+                android:gravity="center_vertical"
+                android:text="问题反馈"
+                android:textColor="#464646"
+                android:textSize="17sp" />
+
+            <!--<ImageView-->
+            <!--android:layout_width="20dp"-->
+            <!--android:layout_height="20dp"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginRight="10dp"-->
+            <!--android:src="@drawable/mineright" />-->
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:background="#ffffff"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/ll_downbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_marginTop="8dp"
+            android:id="@+id/btn_home"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:src="@drawable/maindark"
+                android:layout_gravity="center"
+                android:layout_width="20dp"
+                android:layout_height="20dp" />
+
+            <TextView
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:text="@string/daily_schedule"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="10dp"/>
+
+
+
+
+
+        <LinearLayout
+            android:layout_marginTop="8dp"
+            android:id="@+id/btn_mine"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:src="@drawable/minelight"
+                android:layout_gravity="center"
+                android:layout_width="20dp"
+                android:layout_height="20dp" />
+
+            <TextView
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:text="@string/Mine"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
+
+    <View
+        android:visibility="gone"
+        android:id="@+id/darkback"
+        android:background="#232323"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ImageView
+        android:layout_marginBottom="10dp"
+        android:id="@+id/btn_addAss"
+        android:layout_gravity="center|bottom"
+        android:src="@drawable/add"
+        android:layout_width="34dp"
+        android:layout_height="34dp" />
+    <ImageView
+        android:layout_marginBottom="10dp"
+
+        android:visibility="gone"
+        android:id="@+id/btn_punch"
+        android:layout_gravity="center|bottom"
+        android:src="@drawable/punch"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+    <ImageView
+        android:layout_marginBottom="10dp"
+
+        android:visibility="gone"
+        android:id="@+id/btn_article"
+        android:layout_gravity="center|bottom"
+        android:src="@drawable/log"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+</FrameLayout>

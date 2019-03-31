@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:elevation="2dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/itemback"
+    android:id="@+id/ll_item">
+
+    <LinearLayout
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:src="@drawable/night"
+            android:id="@+id/img_circle_user"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:textColor="#000000"
+                android:text="TWELVE"
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="26dp" />
+
+            <TextView
+                android:textSize="12sp"
+                android:text="1月1日 18:30"
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_marginBottom="3dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="大江东去浪淘尽，千古风流人物
+啊哈哈哈啊浪腾腾腾
+浪浪浪
+哈哈"
+        android:id="@+id/tv_contentOfFlag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:minLines="2"/>
+
+    <RelativeLayout
+        android:layout_marginBottom="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="20dp">
+
+        <ImageView
+            android:layout_toLeftOf="@id/tv_comment_num"
+            android:id="@+id/btn_toComment"
+            android:background="@drawable/commentdark"
+            android:layout_width="20dp"
+            android:layout_height="20sp"
+            android:layout_marginRight="10dp"/>
+        <TextView
+            android:textSize="12sp"
+            android:layout_toLeftOf="@id/btn_like"
+            android:text="13"
+            android:id="@+id/tv_comment_num"
+            android:layout_width="20dp"
+            android:layout_height="15dp"
+            android:layout_marginRight="10dp"/>
+
+        <ImageView
+            android:layout_toLeftOf="@id/tv_like_num"
+            android:id="@+id/btn_like"
+            android:background="@drawable/beforelike"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginRight="10dp"/>
+
+        <TextView
+            android:textSize="12sp"
+            android:text="22"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:id="@+id/tv_like_num"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+
+
+    </RelativeLayout>
+
+</LinearLayout>

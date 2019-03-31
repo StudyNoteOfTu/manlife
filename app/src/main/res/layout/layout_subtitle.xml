@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
+
+    <ScrollView
+
+        android:background="@drawable/downback"
+        android:id="@+id/scrollView"
+        android:layout_width="340dp"
+        android:layout_height="40dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/textview"
+                    android:textColor="#ffc107"
+                    android:text="慢慢 ."
+                    android:textSize="18sp"
+                    android:layout_marginTop="7dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp" />
+
+                <ImageView
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/manman"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </ScrollView>
+    
+    <ImageView
+        android:id="@+id/img_back"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/wideback"
+        android:layout_width="340dp"
+        android:layout_height="150dp" />
+
+</RelativeLayout>

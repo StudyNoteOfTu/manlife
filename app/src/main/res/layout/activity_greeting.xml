@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/rl_greet"
+    android:background="#ffffff"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <ImageView
+        android:id="@+id/img"
+        android:layout_marginTop="88dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/morning"
+        android:layout_width="226dp"
+        android:layout_height="226dp" />
+
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="41dp"
+        android:layout_marginBottom="125dp"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:textStyle="bold"
+                android:id="@+id/hi"
+                android:text="Hi "
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/tv_name"
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:text="Twelve"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:text="，"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:id="@+id/tv_era"
+                android:text="日"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:text="安。"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:text="今天是"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:id="@+id/tv_date"
+                android:text="11月11日"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#ffc107"
+                android:textSize="18sp"
+                android:text="，"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+        <TextView
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:textStyle="bold"
+            android:textColor="#ffc107"
+            android:textSize="18sp"
+            android:text="很高兴陪在你身边。"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+
+
+
+</RelativeLayout>
