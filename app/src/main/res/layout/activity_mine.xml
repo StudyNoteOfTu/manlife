@@ -74,6 +74,7 @@
 
 
         <LinearLayout
+            android:elevation="1dp"
             android:id="@+id/btn_toFlag"
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -102,6 +103,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:elevation="1dp"
             android:id="@+id/btn_toTimeLine"
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -130,6 +132,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:elevation="1dp"
             android:id="@+id/btn_toSettings"
             android:layout_width="match_parent"
             android:layout_height="55dp"
@@ -158,6 +161,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:elevation="1dp"
             android:id="@+id/btn_toProblem"
             android:layout_width="match_parent"
             android:layout_height="55dp"

@@ -168,6 +168,7 @@ public class EditAssActivity extends AppCompatActivity {
 
         if(yes ==1){
             img_ass.setBackgroundResource(icons[tempDailyAss.getIcon()]);
+            chosedIcon = tempDailyAss.getIcon();
             tv_dailyAss.setText(tempDailyAss.getTitle());
             tv_progress.setText("已坚持"+tempDailyAss.getProgress()+"天");
         }
@@ -216,77 +217,135 @@ public class EditAssActivity extends AppCompatActivity {
 
     private void PUT(final String title){
 
-        String token = SPManager.setting_get("token",EditAssActivity.this);
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .addInterceptor(new RedirectInterceptor())
-                .build();
-
-        //这里注意第二行的 0 是否会修改后台数据
-        String json = "{\"id\":\""+tempDailyAss.getObjId()+"\"," +
-                "\"time\":0," +
-                "\"title\":\""+title+"\"," +
-                "\"icon_id\":\""+chosedIcon+"\"," +
-                "\"sign_in\":[]}";
-
-        Log.d("TestRoutine",json);
-
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
-
-
-        Request request = new Request.Builder()
-                .addHeader("Auth","Bearer " + token )
-                .url("https://slow.hustonline.net/api/v1/routine/title")
-                .put(requestBody)
-                .build();
-
-        okHttpClient.newCall(request).enqueue(new Callback() {
+        new Thread(){
             @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d("TestRoutine",e.getMessage());
-            }
+            public void run(){
+                String token = SPManager.setting_get("token",EditAssActivity.this);
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if(response.isSuccessful()) {
-                    String string = response.body().string();
-                    Log.d("TestRoutine", "postLog success" + string);
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .followRedirects(false)
+                        .addInterceptor(new RedirectInterceptor())
+                        .build();
 
-                    tempDailyAss.setTitle(title);
-                    tempDailyAss.setIcon(chosedIcon);
-                    dailyAssDao.update(tempDailyAss);
+                //这里注意第二行的 0 是否会修改后台数据
+                String json = "{\"id\":\""+tempDailyAss.getObjId()+"\"," +
+                        "\"time\":0," +
+                        "\"title\":\""+title+"\"," +
+                        "\"icon_id\":\""+chosedIcon+"\"," +
+                        "\"sign_in\":[]}";
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast toast = new Toast(getApplicationContext());
-                            //创建一个填充物，用于填充Toast
-                            LayoutInflater inflater = LayoutInflater.from(EditAssActivity.this);
-                            //填充物来自的xml文件，在这里改成一个view
-                            //实现xml到view的转变
-                            View view = inflater.inflate(R.layout.toast_ok, null);
-                            toast.setView(view);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            toast.setDuration(Toast.LENGTH_SHORT);
-                            showMyToast(toast, 1000);
+                Log.d("TestRoutine",json);
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
 
 
-                            yes = 0;//初始化
+                Request request = new Request.Builder()
+                        .addHeader("Auth","Bearer " + token )
+                        .url("https://slow.hustonline.net/api/v1/routine/icon")
+                        .put(requestBody)
+                        .build();
 
-                            Intent intent = new Intent(EditAssActivity.this,MainActivity.class);
-                            startActivity(intent);
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("TestRoutine",e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if(response.isSuccessful()) {
+                            String string = response.body().string();
+                            Log.d("TestRoutine", "postLog success" + string);
+
+                        }else{
+                            Log.d("TestRoutine", "put error"+response.code()+response);
                         }
-                    });
 
 
-                }else{
-                    Log.d("TestRoutine", "put error"+response.code()+response);
-                }
-
+                    }
+                });
 
             }
-        });
+        }.start();
+
+        new Thread(){
+            @Override
+            public void run(){
+                String token = SPManager.setting_get("token",EditAssActivity.this);
+
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .followRedirects(false)
+                        .addInterceptor(new RedirectInterceptor())
+                        .build();
+
+                //这里注意第二行的 0 是否会修改后台数据
+                String json = "{\"id\":\""+tempDailyAss.getObjId()+"\"," +
+                        "\"time\":0," +
+                        "\"title\":\""+title+"\"," +
+                        "\"icon_id\":\""+chosedIcon+"\"," +
+                        "\"sign_in\":[]}";
+
+                Log.d("TestRoutine",json);
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                Request request = new Request.Builder()
+                        .addHeader("Auth","Bearer " + token )
+                        .url("https://slow.hustonline.net/api/v1/routine/title")
+                        .put(requestBody)
+                        .build();
+
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("TestRoutine",e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if(response.isSuccessful()) {
+                            String string = response.body().string();
+                            Log.d("TestRoutine", "postLog success" + string);
+
+                            tempDailyAss.setTitle(title);
+                            tempDailyAss.setIcon(chosedIcon);
+                            Log.d("TestRoutine","tmepDailyAss"+tempDailyAss.getFinish()+tempDailyAss.getProgress());
+
+                            dailyAssDao.update(tempDailyAss);
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast toast = new Toast(getApplicationContext());
+                                    //创建一个填充物，用于填充Toast
+                                    LayoutInflater inflater = LayoutInflater.from(EditAssActivity.this);
+                                    //填充物来自的xml文件，在这里改成一个view
+                                    //实现xml到view的转变
+                                    View view = inflater.inflate(R.layout.toast_ok, null);
+                                    toast.setView(view);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.setDuration(Toast.LENGTH_SHORT);
+                                    showMyToast(toast, 1000);
+
+
+                                    yes = 0;//初始化
+
+                                    Intent intent = new Intent(EditAssActivity.this,MainActivity.class);
+                                    startActivity(intent);
+                                }
+                            });
+
+
+                        }else{
+                            Log.d("TestRoutine", "put error"+response.code()+response);
+                        }
+
+
+                    }
+                });
+            }
+        }.start();
     }
 
     private void POST(final String title){

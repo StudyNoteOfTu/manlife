@@ -58,6 +58,8 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:elevation="1dp"
+        android:background="@drawable/item_main_circle"
         android:id="@+id/ll_sentence"
         android:layout_below="@+id/topbar"
         android:layout_width="match_parent"
@@ -77,7 +79,6 @@
             android:textColor="#ffc107"
             android:textSize="18sp"
             android:gravity="center_vertical"
-            android:background="@drawable/item_main_circle"
             android:layout_width="match_parent"
             android:layout_height="48dp" />
 
