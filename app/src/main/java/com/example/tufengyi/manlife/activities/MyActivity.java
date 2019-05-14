@@ -23,6 +23,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.db.SPManager;
@@ -38,11 +41,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MyActivity  extends AppCompatActivity {
     private LinearLayout btn_home,btn_toTimeLine,btn_toProblem,btn_toFlag,btn_toSetting;
     private ImageView btn_addAss;
-    private ImageView btn_pen;
     private CircleImageView img_head;
     private EditText edt_name;
-    private String FLAG = "TOEDIT";
-    private MyDialog1 myDialog1;
     private boolean isMenuOpen = false;
 
     private List<ImageView> imageViews = new ArrayList<>();
@@ -59,11 +59,17 @@ public class MyActivity  extends AppCompatActivity {
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setStatusBarColor(0xfff2b600);
 
         }
         setContentView(R.layout.activity_mine);
         initViews();
+        initDatas();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         initDatas();
     }
 
@@ -78,18 +84,21 @@ public class MyActivity  extends AppCompatActivity {
                             @Override
                             public void run() {
                                 edt_name.setText(MyApplication.userName);
+                                Glide.with(MyActivity.this).load(MyApplication.userImg).into(img_head);
                             }
                         });
+
                         if (SPManager.setting_get("img_url", MyActivity.this).equals(MyApplication.userImg)) {
 
                             if (BitmapFactory.decodeFile(SPManager.setting_get("img_path", MyActivity.this)) == null) {
-                                //如果被用户从本地删除了，重新加载下载
+
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         Glide.with(MyActivity.this).load(MyApplication.userImg).into(img_head);
                                     }
                                 });
+                                //如果被用户从本地删除了，重新加载下载
 
                                 SPManager.setting_add("img_url", MyApplication.userImg, MyActivity.this);
                                 DonwloadSaveImg.donwloadImg(MyActivity.this, MyApplication.userImg);
@@ -98,22 +107,25 @@ public class MyActivity  extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Glide.with(MyActivity.this).load(SPManager.setting_get("img_path",MyActivity.this)).into(img_head);
+                                        img_head.setImageBitmap(BitmapFactory.decodeFile(SPManager.setting_get("img_path", MyActivity.this)));
+                                        //Glide.with(MyActivity.this).load(SPManager.setting_get("img_path",MyActivity.this)).into(img_head);
                                     }
                                 });
 
                             }
 
                         } else {
+
                             //如果不一致，下载
                             SPManager.setting_add("img_url", MyApplication.userImg, MyActivity.this);
                             DonwloadSaveImg.donwloadImg(MyActivity.this, MyApplication.userImg);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Glide.with(MyActivity.this).load(MyApplication.userImg).into(img_head);
-                                }
-                            });
+                            Glide.with(MyActivity.this).load(MyApplication.userImg).into(img_head);
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Glide.with(MyActivity.this).load(MyApplication.userImg).into(img_head);
+//                                }
+//                            });
 
                         }
                         break;
@@ -139,6 +151,102 @@ public class MyActivity  extends AppCompatActivity {
         }.start();
 
     }
+//private void initDatas(){
+//    new Thread(){
+//        @Override
+//        public void run(){
+//            int i = 0;
+//            while(true) {
+//                if (MyApplication.userId != null) {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            edt_name.setText(MyApplication.userName);
+//                            Glide.with(MyActivity.this).load("https://img-blog.csdn.net/20180829160736564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1eW9uZ2hvbmcxMTIy/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70").listener(new RequestListener<String, GlideDrawable>() {
+//                                @Override
+//                                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+//                                    runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            Toast.makeText(MyActivity.this, "download failed", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    });
+//                                    return false;
+//                                }
+//
+//                                @Override
+//                                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+//                                    Toast.makeText(MyActivity.this, "onResourceReady", Toast.LENGTH_SHORT).show();
+//
+//                                    return false;
+//                                }
+//                            }).into(img_head);
+//                        }
+//                    });
+//
+//                    if (SPManager.setting_get("img_url", MyActivity.this).equals(MyApplication.userImg)) {
+//
+//                        if (BitmapFactory.decodeFile(SPManager.setting_get("img_path", MyActivity.this)) == null) {
+//
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Glide.with(MyActivity.this).load("https://img-blog.csdn.net/20180829160736564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1eW9uZ2hvbmcxMTIy/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70").into(img_head);
+//                                }
+//                            });
+//                            //如果被用户从本地删除了，重新加载下载
+//
+//                            SPManager.setting_add("img_url", MyApplication.userImg, MyActivity.this);
+//                            DonwloadSaveImg.donwloadImg(MyActivity.this, MyApplication.userImg);
+//                        }else{
+//                            //没问题就加载本地
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    img_head.setImageBitmap(BitmapFactory.decodeFile(SPManager.setting_get("img_path", MyActivity.this)));
+//                                    //Glide.with(MyActivity.this).load(SPManager.setting_get("img_path",MyActivity.this)).into(img_head);
+//                                }
+//                            });
+//
+//                        }
+//
+//                    } else {
+//
+//                        //如果不一致，下载
+//                        SPManager.setting_add("img_url", MyApplication.userImg, MyActivity.this);
+//                        DonwloadSaveImg.donwloadImg(MyActivity.this, MyApplication.userImg);
+//                        Glide.with(MyActivity.this).load("https://img-blog.csdn.net/20180829160736564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h1eW9uZ2hvbmcxMTIy/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70").into(img_head);
+////                            runOnUiThread(new Runnable() {
+////                                @Override
+////                                public void run() {
+////                                    Glide.with(MyActivity.this).load(MyApplication.userImg).into(img_head);
+////                                }
+////                            });
+//
+//                    }
+//                    break;
+//                }
+//                try {
+//                    sleep(500);
+//                    i++;
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                if(i>=120){//如果一分钟还加载不出来
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(MyActivity.this, "网络错误，头像无法加载", Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                    break;
+//                }
+//            }
+//        }
+//    }.start();
+
+//}
 
     @Override
     protected void onPause(){
@@ -268,30 +376,6 @@ public class MyActivity  extends AppCompatActivity {
         edt_name = (EditText) findViewById(R.id.edt_name);
          edt_name.setFocusable(false);
         edt_name.setFocusableInTouchMode(false);
-        btn_pen = (ImageView) findViewById(R.id.img_pen);
-        btn_pen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialog();
-               // DiyDialog1();
-//                if(FLAG.equals("TOEDIT")) {
-//                    btn_pen.setBackgroundResource(R.drawable.editdark);
-//                    FLAG = "TOSAVE";
-//                    edt_name.setFocusable(true);
-//                    edt_name.setFocusableInTouchMode(true);
-//                    //这里添加点击确定的逻辑，或者在dialog中添加对应的逻辑
-//
-//                }else{
-//                    btn_pen.setBackgroundResource(R.drawable.editlight);
-//                    edt_name.setFocusable(false);
-//                    edt_name.setFocusableInTouchMode(false);
-//                    FLAG="TOEDIT";
-//                    InputMethodManager imm = (InputMethodManager) MyActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    // 隐藏软键盘
-//                    imm.hideSoftInputFromWindow(MyActivity.this.getWindow().getDecorView().getWindowToken(), 0);
-//                }
-            }
-        });
         //DiyDialog1();
 
     }
@@ -379,7 +463,7 @@ public class MyActivity  extends AppCompatActivity {
     }
 
     private void showCloseAnim(int dp){
-        ObjectAnimator.ofFloat(view_back,"alpha",0.5f,0).setDuration(500).start();
+        ObjectAnimator.ofFloat(view_back,"alpha",0.5f,0).setDuration(300).start();
 
         ScaleAnimation scaleAnimation = (ScaleAnimation) AnimationUtils.loadAnimation(MyActivity.this,R.anim.scale_back);
         btn_addAss.startAnimation(scaleAnimation);

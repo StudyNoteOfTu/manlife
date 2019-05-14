@@ -18,8 +18,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -173,6 +175,8 @@ public class ScreenShot {
         //宽 高
         //int sub_height = subTitle.getHeight();
 
+        //我们设定，最小高度为5个item高度
+
         //背景高度
         int back_height = back.getHeight();
         //宽度
@@ -185,16 +189,40 @@ public class ScreenShot {
         //元素个数
         int listItemNum;
 
+        //增长后的个数
+        //int realNum;
+
+
+
+
         // width = getDisplayMetrics(context)[0];//宽度等于屏幕宽
         width = listView.getWidth() ;
 
         int left = (Twidth-width)/2;
 
         ListAdapter listAdapter = listView.getAdapter();
-        listItemNum = listAdapter.getCount();
+
+        //如果小于5个就增长到5个
+        listItemNum = listAdapter.getCount() ;
+
+
+        WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = manager.getDefaultDisplay();
+        int windowHeight = display.getHeight();
+
+        //
+
+        //一般 6-9 个之间(具体大小根据手机屏幕高度来适配)
+        //realNum = listItemNum<8? 8:listItemNum;
+
+        Log.d("MyTest421","metrics"+windowHeight+"\n height"+back_height);
+
+
         List<View> childViews = new ArrayList<View>(listItemNum);
+        //判断最小数量
         View itemView;
         //计算整体高度:
+        //1.把有内容的填上
         for(int pos=0; pos < listItemNum; ++pos){
             itemView = listAdapter.getView(pos, null, listView);
             //measure过程
@@ -203,48 +231,143 @@ public class ScreenShot {
             rootHeight += itemView.getMeasuredHeight();
         }
 
+        int itemHeight;
+        itemView = listAdapter.getView(0, null, listView);
+        //measure过程
+        itemView.measure(View.MeasureSpec.makeMeasureSpec(width, View. MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        itemHeight = itemView.getMeasuredHeight();
+
+        //2.把空白部分补全 real 5 list 4 结果 1 补
+//        for(int plus = 0; plus < realNum-listItemNum; plus++){
+//            rootHeight += itemHeight;//获得第一项的高度（之前已经确保了没有任务不让添加）
+//        }
+
+
         //40是first距离顶部的距离
+        //现在height为整个高度
         height = sub.getHeight()+rootHeight+first.getHeight()+40;
 
+        Log.d("MyTest421","height:"+height);
+
+        //1.不够高 那么就增加，增加一次判断一次，看看什么时候在height超过屏幕高度（在这里之前截断进程）
+        //判断是否够高
+        boolean highEnough = false;
+        int addheight = 0;
+        if(height < windowHeight){//如果不够高
+            //那么计算差多少，根据差的多少进行绘制白色图片
+            addheight = windowHeight - height;//获得中间差的高度（需要填充白色的部分）
+            Log.d("MyTest421","delta:"+addheight);
+        }//如果足够高那么就不添加0 了
+        else highEnough = true;//足够高了
+
+
+        //2.如果超过了，那么就不管了
+
         //int back_counts =height/back_height+1;
-
+        int back_counts;
         //如果mode不为0，说明不完整，那么这时候就加一个！
-        int back_counts = height%back_height==0? height/back_height:height/back_height+1;
-
-        //看看背景要多少个
-        height = back_counts*back_height;
-
-        Bitmap result = Bitmap.createBitmap(Twidth,height,Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(result);
-        //canvas.drawColor(Color.GREEN);
-
-        int yTop = 0;
-        for(int j = 0;j<back_counts;j++){
-            canvas.drawBitmap(back,0,yTop,null);
-            yTop+=back_height;
+        boolean hasAdd = false;
+        if((height+addheight)%back_height==0){
+            hasAdd = false;
+            back_counts = (height+addheight)/back_height;
+        }else{
+            hasAdd = true;
+            back_counts = (height+addheight)/back_height+1;
         }
 
-        canvas.drawBitmap(first,left,40,null);
+        Log.d("MyTest421","back counts:"+back_counts);
 
-        Bitmap itemBitmap;
-        int childHeight;
-        //把每个ItemView生成图片，并画到背景画布上
-        for(int pos=0; pos < childViews.size(); ++pos){
-            itemView = childViews.get(pos);
-            childHeight = itemView.getMeasuredHeight();
-            itemBitmap = viewToBitmap(itemView,width,childHeight);
-            if(itemBitmap!=null){
-                canvas.drawBitmap(itemBitmap, left, yPos, null);
+        //看看背景要多少个，把height设置为以背景为单元
+        //高度是否足够
+        if(highEnough){
+            height = back_counts*back_height;
+//            height就是原来的height
+
+            //设置最小
+            Bitmap result = Bitmap.createBitmap(Twidth,height,Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(result);
+            //canvas.drawColor(Color.GREEN);
+
+            int yTop = 0;
+
+
+            //绘制背景
+            for(int j = 0;j<back_counts;j++){
+                canvas.drawBitmap(back,0,yTop,null);
+                yTop+=back_height;
             }
-            yPos = childHeight +yPos;
+
+
+            //绘制头部
+            canvas.drawBitmap(first,left,40,null);
+
+            Bitmap itemBitmap;
+            int childHeight;
+            //把每个ItemView生成图片，并画到背景画布上
+            for(int pos=0; pos < childViews.size(); ++pos){
+                itemView = childViews.get(pos);
+                childHeight = itemView.getMeasuredHeight();
+                itemBitmap = viewToBitmap(itemView,width,childHeight);
+                if(itemBitmap!=null){
+                    canvas.drawBitmap(itemBitmap, left, yPos, null);
+                }
+                yPos = childHeight +yPos;
+            }
+
+            canvas.drawBitmap(sub,0,height-sub.getHeight(),null);
+
+            canvas.save();
+            canvas.restore();
+            return result;
+        }else{//如果不够高
+            height = windowHeight;
+            //设置最小
+            Bitmap result = Bitmap.createBitmap(Twidth,height,Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(result);
+            int yTop = 0;
+            //绘制背景
+            if(hasAdd){
+                for (int j = 0; j < back_counts-1; j++) {
+                    canvas.drawBitmap(back, 0, yTop, null);
+                    yTop += back_height;
+                }
+                canvas.drawBitmap(Bitmap.createBitmap(back,0,0,back.getWidth(),back_height*back_counts-height,null,false),0,yTop,null);
+            }else {
+                for (int j = 0; j < back_counts; j++) {
+                    canvas.drawBitmap(back, 0, yTop, null);
+                    yTop += back_height;
+                }
+            }
+
+            //绘制头部
+            canvas.drawBitmap(first,left,40,null);
+
+            Bitmap itemBitmap;
+            int childHeight;
+            //把每个ItemView生成图片，并画到背景画布上
+            for(int pos=0; pos < childViews.size(); ++pos){
+                itemView = childViews.get(pos);
+                childHeight = itemView.getMeasuredHeight();
+                itemBitmap = viewToBitmap(itemView,width,childHeight);
+                if(itemBitmap!=null){
+                    canvas.drawBitmap(itemBitmap, left, yPos, null);
+                }
+                yPos = childHeight +yPos;
+            }
+
+            //填充白色方块
+            itemBitmap = Bitmap.createBitmap(width,addheight, Bitmap.Config.ARGB_8888);
+            itemBitmap.eraseColor(Color.parseColor("#FFFFFF"));//填充白色
+            canvas.drawBitmap(itemBitmap,left,yPos,null);
+
+            canvas.drawBitmap(sub,0,height-sub.getHeight(),null);
+
+
+            canvas.save();
+            canvas.restore();
+            return result;
         }
 
-        canvas.drawBitmap(sub,0,height-sub.getHeight(),null);
-
-
-        canvas.save();
-        canvas.restore();
-        return result;
     }
 
     private static Bitmap viewToBitmap(View view, int viewWidth, int viewHeight){

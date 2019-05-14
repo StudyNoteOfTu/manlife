@@ -22,6 +22,7 @@ import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
@@ -47,7 +48,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private String[] months = {
+    private static String[] months = {
       "Jan","Feb" ,"Mat","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
     };
    // private EditText edt_sentence;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setStatusBarColor(0xfff2b600);
 
         }
         setContentView(R.layout.activity_main);
@@ -139,6 +140,44 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void refreshToken(){
+        new Thread(){
+            @Override
+            public void run() {
+                OkHttpClient okHttpClient = new OkHttpClient();
+
+                //String format = String.format("https://slow.hustonline.net/api/v1/user");
+
+                Request build1 = new Request.Builder().url("https://slow.hustonline.net/api/v1/auth/refresh_token")
+                        .addHeader("Auth","Bearer "+token)
+                        .get()
+                        .build();
+
+                okHttpClient.newCall(build1).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String string = response.body().string();
+                        Log.d("Tu513","refresh get token ："+string);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String token = string.substring(string.indexOf("token")+8,string.length()-2);
+                                SPManager.setting_add("token",token,MainActivity.this);
+                            }
+                        });
+
+                    }
+                });
+            }
+        }.start();
+    }
+
 
     //获得用户信息
     private void getUser(){
@@ -165,20 +204,30 @@ public class MainActivity extends AppCompatActivity {
                 String string = response.body().string();
                 Log.d("TestUser","userget---"+string);
 
+                if(string.contains("expired")||string.contains("fail")){//过期?
+                    //重新登录
+                    Toast.makeText(MainActivity.this, "登录过期", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                    startActivity(intent);
+                }
+
                 //开始解析JSONObject
                 try{
                     String jsontarget = string.substring(string.indexOf("\"data\"")+7,string.length()-1);//左闭右开
                     Log.d("TestUser","getjsontarget"+jsontarget);
                     JSONObject jsonObject = new JSONObject(jsontarget);
 
-                    String userName = jsonObject.getString("name");
+                    final String userName = jsonObject.getString("name");
                     String userImg =jsonObject.getString("img_url");
                     String userId = jsonObject.getString("id");
+                    String wx_id = jsonObject.getString("wx_id");
 
 
                     MyApplication.userId = userId;
                     MyApplication.userImg = userImg;
                     MyApplication.userName = userName;
+                    MyApplication.wx_id = wx_id;
+
                     if(SPManager.setting_get("img_url",MainActivity.this).equals(userImg)){
 
                         if(BitmapFactory.decodeFile(SPManager.setting_get("img_path",MainActivity.this))==null){
@@ -392,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     private void showCloseAnim(int dp){
-        ObjectAnimator.ofFloat(view_back,"alpha",0.5f,0).setDuration(500).start();
+        ObjectAnimator.ofFloat(view_back,"alpha",0.5f,0).setDuration(300).start();
 
         ScaleAnimation scaleAnimation = (ScaleAnimation) AnimationUtils.loadAnimation(MainActivity.this,R.anim.scale_back);
         btn_addAss.startAnimation(scaleAnimation);
@@ -427,9 +476,12 @@ public class MainActivity extends AppCompatActivity {
                     btn_punch.setVisibility(View.GONE);
                     view_back.setVisibility(View.GONE);
 
-
                     //菜单状态置关闭
                     isMenuOpen = false;
+
+
+
+
                 }
 
                 @Override
@@ -442,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+
         }
 
         //转动加号大图标本身45°
@@ -560,5 +613,12 @@ public class MainActivity extends AppCompatActivity {
 //        dialog.show();
 //        //自定义的东西
 //    }
+    @Override
+    public void onBackPressed(){
+        Intent backHome = new Intent(Intent.ACTION_MAIN);
+        backHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        backHome.addCategory(Intent.CATEGORY_HOME);
+        startActivity(backHome);
+    }
 
 }

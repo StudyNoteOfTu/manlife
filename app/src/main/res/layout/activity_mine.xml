@@ -28,7 +28,6 @@
         android:layout_above="@+id/ll_downbar"
        android:layout_below="@id/topwindow"
         android:layout_marginBottom="0dp"
-        android:background="#eeeeee"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -55,20 +54,12 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:layout_gravity="top"
-                    android:background="#ffc107"
+                    android:background="#00000000"
                     android:text="加载中..."
                     android:textColor="#ffffff"
                     android:textSize="16sp" />
 
-                <ImageView
-                    android:id="@+id/img_pen"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_toRightOf="@id/edt_name"
-                    android:src="@drawable/editlight" />
+
             </RelativeLayout>
         </RelativeLayout>
 
@@ -195,10 +186,11 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/ll_downbar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="57dp"
         android:orientation="horizontal">
         <LinearLayout
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="9dp"
             android:id="@+id/btn_home"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -231,6 +223,7 @@
 
         <LinearLayout
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="9dp"
             android:id="@+id/btn_mine"
             android:layout_weight="1"
             android:layout_width="0dp"
@@ -264,14 +257,14 @@
         android:layout_height="match_parent"/>
 
     <ImageView
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="19dp"
         android:id="@+id/btn_addAss"
         android:layout_gravity="center|bottom"
         android:src="@drawable/add"
         android:layout_width="34dp"
         android:layout_height="34dp" />
     <ImageView
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="19dp"
 
         android:visibility="gone"
         android:id="@+id/btn_punch"
@@ -280,7 +273,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp" />
     <ImageView
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="19dp"
 
         android:visibility="gone"
         android:id="@+id/btn_article"

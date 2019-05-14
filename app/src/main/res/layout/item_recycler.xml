@@ -64,7 +64,7 @@
             android:text="编辑"
             android:textColor="#ffffff"
             android:textSize="16sp"
-            android:background="#78c7e5"
+            android:background="@drawable/backlef"
             android:layout_width="80dp"
             android:layout_height="match_parent" />
 

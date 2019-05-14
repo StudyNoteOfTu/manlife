@@ -52,7 +52,13 @@ public class DayLog extends PunchedAss {
         this.id = id;
     }
 
+    public long getStamp() {
+        return stamp;
+    }
 
+    public void setStamp(long stamp) {
+        this.stamp = stamp;
+    }
 
     public String getContent() {
         return content;

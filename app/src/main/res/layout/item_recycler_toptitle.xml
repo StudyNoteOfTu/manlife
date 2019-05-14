@@ -11,7 +11,7 @@
 
 
         <View
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="11dp"
             android:background="@drawable/view_circle"
             android:layout_marginTop="12dp"
             android:layout_width="12dp"

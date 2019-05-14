@@ -19,13 +19,18 @@
         android:layout_width="match_parent"
         android:layout_height="50dp">
 
-        <ImageView
-            android:layout_marginLeft="22dp"
-            android:layout_gravity="center"
-            android:id="@+id/back"
-            android:src="@drawable/back"
-            android:layout_width="20dp"
-            android:layout_height="20dp" />
+        <LinearLayout
+            android:id="@+id/ll_back"
+            android:layout_width="80dp"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/back"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/back"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="0dp"
@@ -36,18 +41,27 @@
             android:gravity="center"
             android:text="FLAG"/>
 
-        <ImageView
-            android:layout_gravity="center"
-            android:id="@+id/btn_addFlag"
-            android:layout_marginRight="12dp"
-            android:layout_width="25dp"
-            android:layout_height="20dp"
-            android:src="@drawable/editlight"/>
+        <RelativeLayout
+            android:id="@+id/rl_edit"
+            android:layout_width="80dp"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:id="@+id/btn_addFlag"
+                android:layout_marginRight="15dp"
+                android:layout_width="25dp"
+                android:layout_height="20dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/editlight"/>
+        </RelativeLayout>
+
+
+
     </LinearLayout>
 
 
-    <com.example.tufengyi.manlife.view.CustomSwipeRefreshLayout
-
+    <com.example.tufengyi.manlife.view.swipe.SwipeRefreshLayout
         android:layout_below="@id/ll_topbar"
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
@@ -59,7 +73,7 @@
             android:id="@+id/flags_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-    </com.example.tufengyi.manlife.view.CustomSwipeRefreshLayout>
+    </com.example.tufengyi.manlife.view.swipe.SwipeRefreshLayout>
 
 
 

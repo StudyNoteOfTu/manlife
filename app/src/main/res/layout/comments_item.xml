@@ -14,12 +14,11 @@
         android:layout_height="wrap_content">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
-            android:src="@drawable/night"
             android:id="@+id/img_circle_user"/>
 
 
@@ -38,13 +37,9 @@
     </LinearLayout>
 
     <TextView
-        android:layout_marginTop="3dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:text="大江东去浪淘尽，千古风流人物
-啊哈哈哈啊浪腾腾腾
-浪浪浪
-哈哈"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:id="@+id/tv_comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

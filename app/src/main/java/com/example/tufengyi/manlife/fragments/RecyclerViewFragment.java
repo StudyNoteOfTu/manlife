@@ -3,7 +3,6 @@ package com.example.tufengyi.manlife.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -11,11 +10,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,18 +20,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.activities.EditAssActivity;
 import com.example.tufengyi.manlife.bean.DailyAssignment;
-import com.example.tufengyi.manlife.bean.PunchedAss;
-import com.example.tufengyi.manlife.bean.Settings;
 import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
 //import com.example.tufengyi.manlife.utils.dao.PunchedAssDao;
-import com.example.tufengyi.manlife.utils.dao.SettingsDao;
 //import com.example.tufengyi.manlife.utils.helper.PunchedAssHelper;
 import com.example.tufengyi.manlife.utils.tools.DateUtil;
 import com.example.tufengyi.manlife.view.SwipeItemLayout;
@@ -127,9 +120,9 @@ public class RecyclerViewFragment extends Fragment {
         private Context mContext;
 
 
-        private String finish = "no";
-        private int progress = 0;
-        private String dates = null;
+//        private String finish = "no";
+//        private int progress = 0;
+//        private String dates = null;
 
         public MyAdapter(Context context) {
             mContext = context;
@@ -145,31 +138,34 @@ public class RecyclerViewFragment extends Fragment {
         @Override
         public void onBindViewHolder(final Holder holder, final int position) {     //绑定ViewHolder
             //mBmp是holder中的ImageView项
+            holder.setIsRecyclable(false);
+
             final DailyAssignment mDailyAss_temp = mDailyAss.get(position);
 
-            finish = mDailyAss_temp.getFinish();//yes/no
-            progress = mDailyAss_temp.getProgress();
-            dates = mDailyAss_temp.getDate();
+            holder.finish = mDailyAss_temp.getFinish();//yes/no
+            holder.progress = mDailyAss_temp.getProgress();
+            holder.dates = mDailyAss_temp.getDate();
 
 
-            StringBuffer sb = new StringBuffer();
-            Calendar cal = Calendar.getInstance();
-
-            sb.append(cal.get(Calendar.YEAR));
-            sb.append("-");
-            if(cal.get(Calendar.MONTH)+1>=0 && cal.get(Calendar.MONTH)+1<10){
-                sb.append("0");
-            }
-            sb.append(cal.get(Calendar.MONTH)+1);
-            sb.append("-");
-            if(cal.get(Calendar.DAY_OF_MONTH)>=0 && cal.get(Calendar.DAY_OF_MONTH)<10){
-                sb.append("0");
-            }
-            sb.append(cal.get(Calendar.DAY_OF_MONTH));
+//            StringBuffer sb = new StringBuffer();
+//            Calendar cal = Calendar.getInstance();
+//
+//            sb.append(cal.get(Calendar.YEAR));
+//            sb.append("-");
+//            if(cal.get(Calendar.MONTH)+1>=0 && cal.get(Calendar.MONTH)+1<10){
+//                sb.append("0");
+//            }
+//            sb.append(cal.get(Calendar.MONTH)+1);
+//            sb.append("-");
+//            if(cal.get(Calendar.DAY_OF_MONTH)>=0 && cal.get(Calendar.DAY_OF_MONTH)<10){
+//                sb.append("0");
+//            }
+//            sb.append(cal.get(Calendar.DAY_OF_MONTH));
             //这里可能会出问题，如何把StringBuffer转为String
-            String dateToday = String.valueOf(sb);
+//            String dateToday = String.valueOf(sb);
+            String dateToday = DateUtil.stampToDate(System.currentTimeMillis());
             //这里我们不对数据库进行操作
-            if(!dateToday.equals(mDailyAss_temp.getDate())){
+            if(!dateToday.equals(mDailyAss_temp.getDate().substring(0,10))){
                 DailyAssignment ass =  new DailyAssignment(mDailyAss_temp.getId(),mDailyAss_temp.getObjId(),mDailyAss_temp.getDate(),
                         mDailyAss_temp.getTitle(),mDailyAss_temp.getIcon(),
                         "no",mDailyAss_temp.getProgress());
@@ -181,52 +177,138 @@ public class RecyclerViewFragment extends Fragment {
             holder.tv_ass.setText(mDailyAss_temp.getTitle());
             holder.tv_progress.setText("已坚持"+mDailyAss_temp.getProgress()+"天");
             if(mDailyAss_temp.getFinish().equals("yes")){
-                holder.btn_finish.setVisibility(GONE);
+                holder.btn_finish.setVisibility(View.INVISIBLE);
                 holder.ll_item.setBackgroundResource(R.drawable.finishback);
             }else{
                 holder.btn_finish.setVisibility(View.VISIBLE);
-                holder.ll_item.setBackgroundColor(Color.WHITE);
+                holder.ll_item.setBackgroundResource(R.drawable.edit_back);
             }
+
+
+            holder.ll_item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(mDailyAss_temp.getFinish().equals("no")){
+
+                    }else{
+                        //如果已完成，那么可以取消签到
+                        StringBuffer sb = new StringBuffer();
+                        Calendar cal_buff = Calendar.getInstance();
+
+                        sb.append(cal_buff.get(Calendar.YEAR));
+                        sb.append("-");
+                        if (cal_buff.get(Calendar.MONTH) + 1 >= 0 && cal_buff.get(Calendar.MONTH) + 1 < 10) {
+                            sb.append("0");
+                        }
+                        sb.append(cal_buff.get(Calendar.MONTH) + 1);
+                        sb.append("-");
+                        sb.append("00");
+//                        if (cal_buff.get(Calendar.DAY_OF_MONTH) >= 0 && cal_buff.get(Calendar.DAY_OF_MONTH) < 10) {
+//                            sb.append("0");
+//                        }
+//                        sb.append(cal_buff.get(Calendar.DAY_OF_MONTH));
+                        //这里可能会出问题，如何把StringBuffer转为String
+                        String date = String.valueOf(sb);
+
+                        dailyAssDao = new DailyAssDao(mContext);
+
+                        //这个在回调时候再visible，把holder传进去
+                        // holder.btn_finish.setVisibility(View.VISIBLE);
+
+                        holder.ll_item.setBackgroundResource(R.drawable.edit_back);
+                        holder.tv_progress.setText("已坚持" + String.valueOf(mDailyAss_temp.getProgress() - 1) + "天");
+
+                        holder.finish = "no";
+                        holder.progress--;
+                        holder.dates = date;
+                        DailyAssignment dailyAss_temp = new DailyAssignment(mDailyAss_temp.getId(), mDailyAss_temp.getObjId(), date,
+                                mDailyAss_temp.getTitle(), mDailyAss_temp.getIcon(),
+                                "no", mDailyAss_temp.getProgress()-1);
+                        dailyAssDao.update(dailyAss_temp);
+                        mDailyAss_temp.setProgress(mDailyAss_temp.getProgress()-1);
+
+                        DELETE(mDailyAss_temp,holder);
+
+                    }
+                }
+            });
+
+
             //holder.img_ass.setImageResource(icons[m]);        //将List的数据填入holder中
             holder.btn_finish.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(up) {
-                        sp.play(music, 1, 1, 0, 0, 1);
+                    if(mDailyAss_temp.getFinish().equals("yes")){
+//                        mDailyAss_temp.setFinish("no");
+//                        //取消打卡
+//                        StringBuffer sb = new StringBuffer();
+//                        Calendar cal_buff = Calendar.getInstance();
+//                        sb.append(cal_buff.get(Calendar.YEAR));
+//                        sb.append("-");
+//                        if (cal_buff.get(Calendar.MONTH) + 1 >= 0 && cal_buff.get(Calendar.MONTH) + 1 < 10) {
+//                            sb.append("0");
+//                        }
+//                        sb.append(cal_buff.get(Calendar.MONTH) + 1);
+//                        sb.append("-");
+//                        if (cal_buff.get(Calendar.DAY_OF_MONTH)-1 >= 0 && cal_buff.get(Calendar.DAY_OF_MONTH)-1 < 10) {
+//                            sb.append("0");
+//                        }
+//                        sb.append(cal_buff.get(Calendar.DAY_OF_MONTH)-1);
+//                        String date = String.valueOf(sb);
+//                        dailyAssDao = new DailyAssDao(mContext);
+//                        holder.ll_item.setBackgroundResource(R.drawable.edit_back);
+//                        finish = "no";
+//                        progress--;
+//                        dates = date;
+//                        DailyAssignment dailyAss_temp = new DailyAssignment(mDailyAss_temp.getId(), mDailyAss_temp.getObjId(), date,
+//                                mDailyAss_temp.getTitle(), mDailyAss_temp.getIcon(),
+//                                "yes", mDailyAss_temp.getProgress() + 1);
+//                        dailyAssDao.update(dailyAss_temp);
+//                        holder.tv_progress.setText("已坚持" + String.valueOf(mDailyAss_temp.getProgress() -1) + "天");
+//
+//                        DELETE(mDailyAss_temp);
+
+
+                    }else {
+                        mDailyAss_temp.setFinish("yes");
+                        if (up) {
+                            sp.play(music, 1, 1, 0, 0, 1);
+                        }
+                        StringBuffer sb = new StringBuffer();
+                        Calendar cal_buff = Calendar.getInstance();
+
+                        sb.append(cal_buff.get(Calendar.YEAR));
+                        sb.append("-");
+                        if (cal_buff.get(Calendar.MONTH) + 1 >= 0 && cal_buff.get(Calendar.MONTH) + 1 < 10) {
+                            sb.append("0");
+                        }
+                        sb.append(cal_buff.get(Calendar.MONTH) + 1);
+                        sb.append("-");
+                        if (cal_buff.get(Calendar.DAY_OF_MONTH) >= 0 && cal_buff.get(Calendar.DAY_OF_MONTH) < 10) {
+                            sb.append("0");
+                        }
+                        sb.append(cal_buff.get(Calendar.DAY_OF_MONTH));
+                        //这里可能会出问题，如何把StringBuffer转为String
+                        String date = String.valueOf(sb);
+
+                        dailyAssDao = new DailyAssDao(mContext);
+                        holder.ll_item.setBackgroundResource(R.drawable.finishback);
+                        holder.btn_finish.setVisibility(GONE);
+                        holder.finish = "yes";
+                        holder.progress++;
+                        holder.dates = date;
+                        DailyAssignment dailyAss_temp = new DailyAssignment(mDailyAss_temp.getId(), mDailyAss_temp.getObjId(), date,
+                                mDailyAss_temp.getTitle(), mDailyAss_temp.getIcon(),
+                                "yes", mDailyAss_temp.getProgress() + 1);
+                        dailyAssDao.update(dailyAss_temp);
+
+                        holder.tv_progress.setText("已坚持" + String.valueOf(mDailyAss_temp.getProgress() + 1) + "天");
+
+                        mDailyAss_temp.setProgress(mDailyAss_temp.getProgress()+1);
+                        //这里进行post更新
+
+                        POST(mDailyAss_temp,holder);
                     }
-                    StringBuffer sb = new StringBuffer();
-                    Calendar cal_buff = Calendar.getInstance();
-
-                    sb.append(cal_buff.get(Calendar.YEAR));
-                    sb.append("-");
-                    if(cal_buff.get(Calendar.MONTH)+1>=0 && cal_buff.get(Calendar.MONTH)+1<10){
-                        sb.append("0");
-                    }
-                    sb.append(cal_buff.get(Calendar.MONTH)+1);
-                    sb.append("-");
-                    if(cal_buff.get(Calendar.DAY_OF_MONTH)>=0 && cal_buff.get(Calendar.DAY_OF_MONTH)<10){
-                        sb.append("0");
-                    }
-                    sb.append(cal_buff.get(Calendar.DAY_OF_MONTH));
-                    //这里可能会出问题，如何把StringBuffer转为String
-                    String date = String.valueOf(sb);
-
-                    dailyAssDao = new DailyAssDao(mContext);
-                    holder.ll_item.setBackgroundResource(R.drawable.finishback);
-                    holder.btn_finish.setVisibility(GONE);
-                    finish = "yes";
-                    progress++;
-                    dates = date;
-                    DailyAssignment dailyAss_temp = new DailyAssignment(mDailyAss_temp.getId(),mDailyAss_temp.getObjId(),date,
-                            mDailyAss_temp.getTitle(),mDailyAss_temp.getIcon(),
-                            "yes",mDailyAss_temp.getProgress()+1);
-                    dailyAssDao.update(dailyAss_temp);
-                    holder.tv_progress.setText("已坚持"+String.valueOf(mDailyAss_temp.getProgress()+1)+"天");
-
-
-                    //这里进行post更新
-
-                    POST(mDailyAss_temp);
 
                     //打卡
 //                    punchedAssDao = new PunchedAssDao(mContext);
@@ -242,6 +324,7 @@ public class RecyclerViewFragment extends Fragment {
                     dailyAssDao = new DailyAssDao(mContext);
                     dailyAssDao.delete(mDailyAss_temp.getId());
                     mDailyAss.remove(position);
+                    mDailyAss = dailyAssDao.queryAll();
 //                    notifyItemRemoved(position);
                     notifyDataSetChanged();//不可再子线程中调用，否则无效，
                     // 可以子线程中添加一个handler发送消息在主线程中更新
@@ -261,16 +344,70 @@ public class RecyclerViewFragment extends Fragment {
                     intent.putExtra("icon",mDailyAss_temp.getIcon());
                     intent.putExtra("title",mDailyAss_temp.getTitle());
                     intent.putExtra("id",mDailyAss_temp.getId());
-                    intent.putExtra("date",dates);
-                    intent.putExtra("progress",progress);
-                    intent.putExtra("finish",finish);
+                    intent.putExtra("date",holder.dates);
+                    intent.putExtra("progress",holder.progress);
+                    intent.putExtra("finish",holder.finish);
                     intent.putExtra("yes",1);
                     startActivity(intent);
                 }
             });
         }
 
-        private void POST(DailyAssignment dailyAssignment){
+        private void DELETE(DailyAssignment dailyAssignment,final Holder holder){
+
+            String token = SPManager.setting_get("token",getActivity());
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .followRedirects(false)
+                    .addInterceptor(new RedirectInterceptor())
+                    .build();
+
+            String json = "{\"id\":\""+dailyAssignment.getObjId()+"\"," +
+                    "\"time\":"+ DateUtil.mil_stringToDate(dailyAssignment.getDate()) +"," +
+                    "\"title\":\""+ dailyAssignment.getTitle() +"\"," +
+                    "\"icon_id\":\""+ dailyAssignment.getIcon() +"\"," +
+                    "\"sign_in\":["+DateUtil.mil_stringToDate(dailyAssignment.getDate())+"]}";
+
+            Log.d("TestRoutine","delete json is:" +json);
+
+            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+            Request request = new Request.Builder()
+                    .addHeader("Auth","Bearer " + token )
+                    .url("https://slow.hustonline.net/api/v1/routine/sign")
+                    .delete(requestBody)
+                    .build();
+
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d("TestRoutine",e.getMessage());
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if(response.isSuccessful()) {
+                        String string = response.body().string();
+                        Log.d("TestRoutine", "deleteRoutine success" + string);
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                holder.btn_finish.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+                    }else{
+                        Log.d("TestRoutine", "put error"+response.code()+response);
+                    }
+
+
+                }
+            });
+
+
+        }
+
+        private void POST(final DailyAssignment dailyAssignment,final Holder holder){
             String token = SPManager.setting_get("token",getActivity());
 
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -279,12 +416,16 @@ public class RecyclerViewFragment extends Fragment {
                     .build();
 
             String json = "{\"id\":\""+dailyAssignment.getObjId()+"\"," +
-                    "\"time\":"+ DateUtil.stringToDate(dailyAssignment.getDate()) +"," +
-                    "\"title\":\""+ dailyAssignment.getTitle() +"\"," +
+//                    "\"time\":"+ DateUtil.stringToDate(dailyAssignment.getDate()) +"," +
+                    "\"time\":0," +
+//                    "\"title\":\""+ dailyAssignment.getTitle() +"\"," +
+                    "\"title\":\"\"," +
                     "\"icon_id\":\""+ dailyAssignment.getIcon() +"\"," +
                     "\"sign_in\":[]}";
 
             // {"id":"xxx","time",0,"title":"","icon_id":"","sign_in":[]}
+
+            Log.d("TestRoutine","post json is:"+json);
 
             RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
 
@@ -303,8 +444,26 @@ public class RecyclerViewFragment extends Fragment {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if(response.isSuccessful()) {
-                        String string = response.body().string();
+                        final String string = response.body().string();
                         Log.d("TestRoutine", "postLog success" + string);
+                        //修改dailyAssignment的数据
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String temp = string.substring(string.indexOf("time")+6);
+                                String date = temp.substring(0,temp.indexOf(","));
+                                Log.d("TestRoutine",date);
+                                dailyAssignment.setDate(DateUtil.mil_stampToDate(Long.parseLong(date)));
+                                DailyAssignment dailyAss_temp = new DailyAssignment(dailyAssignment.getId(), dailyAssignment.getObjId(), DateUtil.mil_stampToDate(Long.parseLong(date)),
+                                        dailyAssignment.getTitle(), dailyAssignment.getIcon(),
+                                        "yes", dailyAssignment.getProgress());
+                                dailyAssDao.update(dailyAss_temp);
+                                Log.d("Tu513","date(String)"+dailyAssignment.getDate());
+                                Log.d("Tu513","date(long)"+DateUtil.mil_stringToDate(dailyAssignment.getDate()));
+                                holder.dates = date;
+                            }
+                        });
+
 
                     }else{
                         Log.d("TestRoutine", "put error"+response.code()+response);
@@ -322,6 +481,11 @@ public class RecyclerViewFragment extends Fragment {
 
         class Holder extends RecyclerView.ViewHolder  {
            // private ImageView mBmp;     //Holder的属性就是子项中的component
+
+            private String finish = "no";
+            private int progress = 0;
+            private String dates = null;
+
             private ImageView img_ass;
             private TextView tv_ass;
             private TextView tv_progress;

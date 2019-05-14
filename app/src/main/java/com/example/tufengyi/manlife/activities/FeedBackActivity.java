@@ -51,10 +51,31 @@ public class FeedBackActivity extends AppCompatActivity {
                 String problem = edt_problem.getText().toString();
                 String connect = edt_connect.getText().toString();
 
-                if(problem.isEmpty()&&connect.isEmpty()){
+                if(problem.isEmpty()||connect.isEmpty()){
                     Toast.makeText(FeedBackActivity.this, "请输入遇见的问题和您的联系方式噢！", Toast.LENGTH_SHORT).show();
                 }else {
                     sendTextMail(problem, connect);
+
+                Toast toast = new Toast(getApplicationContext());
+                //创建一个填充物，用于填充Toast
+                LayoutInflater inflater = LayoutInflater.from(FeedBackActivity.this);
+                //填充物来自的xml文件，在这里改成一个view
+                //实现xml到view的转变
+                View view = inflater.inflate(R.layout.toast_sended,null);
+                //不一定需要，找到xml里面的组件，摄制组建里面的具体内容
+//                ImageView imageView1 = view.findViewById(R.id.img_toast);
+//                TextView textView1 = view.findViewById(R.id.tv_toast);
+//                imageView1.setImageResource(R.drawable.smile);
+//                textView1.setText("哈哈哈哈哈");
+                toast.setView(view);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.setDuration(Toast.LENGTH_SHORT);
+                showMyToast(toast,1000);
+                edt_problem.setText("");
+                edt_connect.setText("");
+                edt_connect.clearFocus();
+                edt_problem.clearFocus();
+
                 }
             }
         });
@@ -89,6 +110,7 @@ public class FeedBackActivity extends AppCompatActivity {
 
     private void sendTextMail(String problem,String connect){
         SendMailUtil.send("2847701186@qq.com","------问题反馈："+problem+"\n"+"------联系方式："+connect);
+        SendMailUtil.send("songzilan@foxmail.com","------问题反馈："+problem+"\n"+"------联系方式："+connect);
     }
 
 

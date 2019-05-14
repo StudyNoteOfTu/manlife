@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
@@ -59,12 +60,12 @@ public class LogDetActivity extends BaseActivity implements
         private TextView tv_year1;
         //private List<Player> playerList = new ArrayList<>();
         private List<DayLog> mDayLogs = new ArrayList<>();
-
-        private RecyclerView recyclerView;
+//
+//        private RecyclerView recyclerView;
         private List<DayLog> mSelectedDayLogs = new ArrayList<>();
-        private LogsAdapter adapter;
+//        private LogsAdapter adapter;
 
-//        TextView tv_log;
+        TextView tv_log;
 
 
         TextView mTextMonthDay;
@@ -82,6 +83,7 @@ public class LogDetActivity extends BaseActivity implements
         //CalendarLayout mCalendarLayout;
 
         String date;
+
 
 
         @Override
@@ -145,14 +147,16 @@ public class LogDetActivity extends BaseActivity implements
                                         for (int j = 0; j< mDayLogs.size(); j++){
                                             if (mDayLogs.get(j).getDate().equals(date.substring(0,10))) {
                                                 mSelectedDayLogs.add(mDayLogs.get(j));
+                                                tv_log.setText(mDayLogs.get(j).getContent());
                                             }
                                         }
                                         if(mSelectedDayLogs.size()==0){
                                             DayLog dayLog = new DayLog();
                                             dayLog.setContent("这天没有日志哦");
                                             mSelectedDayLogs.add(dayLog);
+                                            tv_log.setText("这天没有日志哦");
                                         }
-                                        adapter.notifyDataSetChanged();
+//                                        adapter.notifyDataSetChanged();
                                     }
                                 });
 
@@ -215,26 +219,42 @@ public class LogDetActivity extends BaseActivity implements
         @Override
         protected void initView() {
 
-            recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-            LinearLayoutManager linearLayoutManager =new LinearLayoutManager(LogDetActivity.this);
-            recyclerView.setLayoutManager(linearLayoutManager);
-            adapter = new LogsAdapter();
-            recyclerView.setAdapter(adapter);
-            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-                @Override
-                public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                    super.getItemOffsets(outRect, view, parent, state);
-                    outRect.set(16, 16, 16, 8);
-                }
-
-            });
+//            recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+//            LinearLayoutManager linearLayoutManager =new LinearLayoutManager(LogDetActivity.this);
+//            recyclerView.setLayoutManager(linearLayoutManager);
+//            adapter = new LogsAdapter();
+//            recyclerView.setAdapter(adapter);
+//            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+//                @Override
+//                public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+//                    super.getItemOffsets(outRect, view, parent, state);
+//                    outRect.set(16, 16, 16, 8);
+//                }
+//
+//            });
 
 
             Intent intent = getIntent();
             final String catchDate = intent.getStringExtra("date")==null? "":intent.getStringExtra("date");
 
 
-//            tv_log = findViewById(R.id.tv_log);
+            tv_log = findViewById(R.id.tv_log);
+            tv_log.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(mSelectedDayLogs.get(0).getContent().equals("这天没有日志哦")){
+                        Toast.makeText(LogDetActivity.this, "这天没有日志哦", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Intent intent = new Intent(LogDetActivity.this,EditlogActivity.class);
+                        intent.putExtra("log",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getContent());
+                        intent.putExtra("log_id",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getId());
+                        intent.putExtra("log_time",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getStamp());
+                        startActivity(intent);
+                        //后面改成forresult
+                    }
+                }
+            });
+
 //            tv_log.setMovementMethod(ScrollingMovementMethod.getInstance());
             tv_year1 = findViewById(R.id.tv_year1);
             initList();
@@ -440,8 +460,8 @@ public class LogDetActivity extends BaseActivity implements
                         if (mDayLogs.get(j).getDate().equals(year+"-"+month+"-"+day)) {
                             mSelectedDayLogs.add(mDayLogs.get(j));
                             Log.d("TestLog","increased"+mSelectedDayLogs.size());
-//                            tv_log.setText(mDayLogs.get(j).getContent());
-                            //这里未来会修改，break只是为了获取第一个日志
+                            tv_log.setText(mDayLogs.get(j).getContent());
+                            //这里未来会修改，break只是为了获取最后一个日志
                         }
                     }
 
@@ -449,9 +469,10 @@ public class LogDetActivity extends BaseActivity implements
                         DayLog dayLog = new DayLog();
                         dayLog.setContent("这天没有日志哦");
                         mSelectedDayLogs.add(dayLog);
+                        tv_log.setText("这天没有日志哦");
                     }
 
-                    adapter.notifyDataSetChanged();
+//                    adapter.notifyDataSetChanged();
                     //如果没有内容，就加一个空的Daylog
 
 

@@ -9,6 +9,7 @@
     android:id="@+id/ll_item">
 
     <LinearLayout
+        android:id="@+id/ll_top"
         android:layout_marginTop="12dp"
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -20,7 +21,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:src="@drawable/night"
             android:id="@+id/img_circle_user"/>
 
         <LinearLayout
@@ -32,14 +32,12 @@
                 android:textStyle="bold"
                 android:textSize="17sp"
                 android:textColor="#000000"
-                android:text="TWELVE"
                 android:id="@+id/tv_name"
                 android:layout_width="wrap_content"
                 android:layout_height="26dp" />
 
             <TextView
                 android:textSize="12sp"
-                android:text="1月1日 18:30"
                 android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
@@ -53,10 +51,6 @@
         android:layout_marginTop="3dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="大江东去浪淘尽，千古风流人物
-啊哈哈哈啊浪腾腾腾
-浪浪浪
-哈哈"
         android:id="@+id/tv_contentOfFlag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

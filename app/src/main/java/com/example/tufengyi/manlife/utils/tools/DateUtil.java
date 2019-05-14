@@ -55,4 +55,26 @@ public class DateUtil {
         Log.d("TestLog","full_stampToDate"+simpleDateFormat.format(date));
         return simpleDateFormat.format(date);
     }
+
+    public static String mil_stampToDate(long timeMillies){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date date = new Date(timeMillies);
+        return simpleDateFormat.format(date);
+    }
+
+    public static Long mil_stringToDate(String dateString){
+        long re_time = -1;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date d;
+        try{
+            d=sdf.parse(dateString);
+            long l = d.getTime();
+            re_time=l;
+//            String str = String.valueOf(l);
+//            re_time = str.substring(0,10);
+        }catch(ParseException e){
+
+        }
+        return re_time;
+    }
 }

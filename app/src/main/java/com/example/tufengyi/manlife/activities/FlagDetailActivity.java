@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -16,20 +17,39 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
+import com.example.tufengyi.manlife.bean.CommentOfFlag;
 import com.example.tufengyi.manlife.bean.Comments;
+import com.example.tufengyi.manlife.bean.DailyAssignment;
 import com.example.tufengyi.manlife.bean.Flag;
+import com.example.tufengyi.manlife.db.SPManager;
+import com.example.tufengyi.manlife.utils.RedirectInterceptor;
+import com.example.tufengyi.manlife.utils.tools.DateUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class FlagDetailActivity  extends AppCompatActivity {
 
@@ -37,17 +57,30 @@ public class FlagDetailActivity  extends AppCompatActivity {
     private ImageView iv_like;
     private LinearLayout ll_comment;
     private LinearLayout ll_like;
+    private CircleImageView iv_head;
+    private TextView tv_name;
 
     private ListView listView;
-    private List<Comments> mComments = new ArrayList<>();
+    private List<CommentOfFlag> mComments = new ArrayList<>();
+    private List<String> likes = new ArrayList<>();
     long id = 0;
-    String name = "Tuu";
-    String date = "yyyy-MM-dd";
-    String content = "goood!";
-    int num_comments =0;
-    int num_likes = 0;
+    String name ;
+    String date;
+    String content;
+    String openid;
+    String flag_id;
+    String img;
+
     MyAdapter adapter;
-    private Flag flag = new Flag();
+    ImageView btn_back;
+
+    boolean canLike = true;
+
+    Flag flag;
+
+
+
+//    private Flag flag = new Flag();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,21 +88,43 @@ public class FlagDetailActivity  extends AppCompatActivity {
         setContentView(R.layout.activity_flag_detail);
 
         Intent intent = getIntent();
-        //可以获取id，然后这里遍历查询展现
-        id = intent.getLongExtra("id",0);
-        name = intent.getStringExtra("name");
         date = intent.getStringExtra("date");
-        content = intent.getStringExtra("updates");
-        num_comments = intent.getIntExtra("comments",0);
-        num_likes = intent.getIntExtra("likes",0);
-
-//        flag = new Flag(id,name,date,content,num_comments,num_likes);
+        content = intent.getStringExtra("content");
+        img = intent.getStringExtra("img");
+        name = intent.getStringExtra("name");
+        openid = intent.getStringExtra("openid");
+        flag_id = intent.getStringExtra("flagid");
+        likes.clear();
+        likes.addAll(MyApplication.getInstance().getLikes());
+        mComments.clear();
+        mComments.addAll(MyApplication.getInstance().getComments());
+//        public Flag(String openid, String name, String img_url, String id, long time,String date, String content) {
+        flag = new Flag(openid,name,img,flag_id, DateUtil.full_stringToDate(date),date,content);
+        flag.likes.addAll(likes);
+        flag.comments.addAll(mComments);
 
         initData();
         initViews();
     }
 
     private void initViews(){
+
+
+        btn_back = (ImageView) findViewById(R.id.back);
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyApplication.getInstance().setLikes(likes);
+                MyApplication.getInstance().setComments(mComments);
+                Log.d("TestFlag","myapplication comments zise"+MyApplication.getInstance().getComments().size());
+                Intent intent = new Intent();
+                setResult(1,intent);
+                finish();
+            }
+        });
+
+        iv_head = (CircleImageView) findViewById(R.id.img_circle_user);
+        tv_name = (TextView) findViewById(R.id.tv_name);
 
         //注意是否点过赞也要有一个记录，需要后台
         listView  = (ListView) findViewById(R.id.listView);
@@ -86,8 +141,31 @@ public class FlagDetailActivity  extends AppCompatActivity {
 
         iv_like =(ImageView) findViewById(R.id.btn_like);
 
-        tv_comments.setText(""+flag.getComments());
-        tv_likes.setText(""+flag.getLikes());
+//        if(!canLike){
+//            iv_like.setBackgroundResource(R.drawable.afterlike);
+//            iv_like.setClickable(false);//不能再点赞
+//        }
+
+        tv_comments.setText(""+mComments.size());
+        tv_likes.setText(""+likes.size());
+        tv_name.setText(name+"");
+
+        for(String user:likes){
+            if(user.equals(MyApplication.wx_id) && !user.isEmpty() && MyApplication.wx_id !=null){
+                Log.d("MyTest421","has user");
+                //如果有当前用户，就不让点赞
+                iv_like.setBackgroundResource(R.drawable.afterlike);
+                ll_like.setEnabled(false);
+                ll_like.setClickable(false);
+                break;
+            }else{
+                iv_like.setBackgroundResource(R.drawable.beforelike);
+                ll_like.setEnabled(true);
+                ll_like.setClickable(true);
+            }
+        }
+
+        Glide.with(FlagDetailActivity.this).load(img).into(iv_head);
 
         //这里点击范围小，考虑吧两个控件放在一个Layout中
 
@@ -108,15 +186,21 @@ public class FlagDetailActivity  extends AppCompatActivity {
         ll_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(tv_comments,iv_comments,flag);
+                showDialog(tv_comments,flag);
             }
         });
 
         ll_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 iv_like.setBackgroundResource(R.drawable.afterlike);
-                tv_likes.setText(String.valueOf(flag.getLikes()+1));
+                ll_like.setEnabled(false);
+                ll_like.setClickable(false);
+                tv_likes.setText(String.valueOf(Integer.parseInt(tv_likes.getText().toString())+1));
+                likes.add(MyApplication.wx_id);
+                postLike();
+//                tv_likes.setText(String.valueOf(flag.getLikes()+1));
             }
         });
 
@@ -131,19 +215,124 @@ public class FlagDetailActivity  extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    private void postLike(){
+        new Thread(){
+            @Override
+            public void run() {
+                String token = SPManager.setting_get("token",FlagDetailActivity.this);
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .followRedirects(false)
+                        .addInterceptor(new RedirectInterceptor())
+                        .build();
+
+                String json = "{\"openid\":\""+openid+"\"," +
+                        "\"flag_id\":\""+ flag_id +"\"}";
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                Request request = new Request.Builder()
+                        .addHeader("Auth","Bearer " + token )
+                        .url("https://slow.hustonline.net/api/v1/flag/like")
+                        .post(requestBody)
+                        .build();
+
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("TestLog",e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if(response.isSuccessful()) {
+                            String string = response.body().string();
+                            Log.d("TestFlag", "post flag like success" + string);
+
+                        }else{
+                            Log.d("TestFlag", "post flag like error"+response.code()+response);
+                        }
+
+                    }
+                });
+
+            }
+        }.start();
+
+    }
+
+    public void postComment(final String comment, final String openid, final String flag_id){
+        new Thread(){
+            @Override
+            public void run() {
+                String token = SPManager.setting_get("token", FlagDetailActivity.this);
+
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .followRedirects(false)
+                        .addInterceptor(new RedirectInterceptor())
+                        .build();
+
+                String json = "{\"openid\":\""+openid+"\"," +
+                        "\"flag_id\":\""+ flag_id +"\"," +
+                        "\"comment\":{" +
+                        "\"id\":\"\"," +
+                        "\"from_id\":\"\"," +
+                        "\"content\":\""+ comment +"\"," +
+                        "\"time\":0,}}";
+
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                Request request = new Request.Builder()
+                        .addHeader("Auth","Bearer " + token )
+                        .url("https://slow.hustonline.net/api/v1/flag/comment")
+                        .post(requestBody)
+                        .build();
+
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("TestFlag",e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if(response.isSuccessful()) {
+                            String string = response.body().string();
+                            Log.d("TestFlag", "post flag comment success" + string);
+                        }else{
+                            Log.d("TestFlag", "post flag comment error"+response.code()+response);
+                        }
+
+
+                    }
+                });
+            }
+        }.start();
+    }
+
     private void initData(){
-        Comments comments =new Comments("goood!!!","Tuuu");
-        for(int j=0;j<5;j++) {
-            mComments.add(comments);
-        }
+        mComments.clear();
+        mComments.addAll(MyApplication.getInstance().getComments());
+
+        likes.clear();
+        likes.addAll(MyApplication.getInstance().getLikes());
+
+//        for(String user:likes){
+//            if(user.equals(MyApplication.wx_id)){
+//                canLike = false;
+//            }
+//        }
+
     }
 
 
     private class MyAdapter extends BaseAdapter{
-        private List<Comments> mComments;
+        private List<CommentOfFlag> mComments;
         private LayoutInflater layoutInflater;
 
-        public MyAdapter(List<Comments> mComments){
+        public MyAdapter(List<CommentOfFlag> mComments){
             this.layoutInflater = LayoutInflater.from(FlagDetailActivity.this);
             this.mComments = mComments;
         }
@@ -172,14 +361,16 @@ public class FlagDetailActivity  extends AppCompatActivity {
                 convertView = layoutInflater.inflate(R.layout.comments_item,parent,false);
                 viewHolder.tv_comments = convertView.findViewById(R.id.tv_comment);
                 viewHolder.tv_name = convertView.findViewById(R.id.tv_name);
+                viewHolder.img_head = convertView.findViewById(R.id.img_circle_user);
 
                 convertView.setTag(viewHolder);
             }else{
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            Comments comments = mComments.get(position);
-            viewHolder.tv_name.setText(comments.getID());
-            viewHolder.tv_comments.setText(comments.getComment());
+            CommentOfFlag comment = mComments.get(position);
+            viewHolder.tv_comments.setText(comment.getContent());
+            viewHolder.tv_name.setText(comment.getName());
+            Glide.with(FlagDetailActivity.this).load(comment.getImg()).into(viewHolder.img_head);
 
 
          return convertView ;
@@ -188,13 +379,13 @@ public class FlagDetailActivity  extends AppCompatActivity {
         public class ViewHolder {
             private TextView tv_name;
             private TextView tv_comments;
-
+            private ImageView img_head;
             public ViewHolder() {
             }
         }
     }
 
-    private void showDialog(final TextView tv, final ImageView btn_comments, final Flag flag){
+    private void showDialog(final TextView tv,final Flag flag){
         View view = LayoutInflater.from(this).inflate(R.layout.flag_dialog,null,false);
         final AlertDialog dialog = new AlertDialog.Builder(this).setView(view).create();
         final EditText edt_comment = (EditText) view.findViewById(R.id.edt_comment);
@@ -203,28 +394,103 @@ public class FlagDetailActivity  extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                tv.setText(""+(flag.getComments()+1));
-                btn_comments.setBackgroundResource(R.drawable.commentlight);
 
-                String comment = edt_comment.getText().toString();
+                CommentOfFlag commentOfFlag = new CommentOfFlag();
+                commentOfFlag.setName(MyApplication.userName);
+                commentOfFlag.setContent(edt_comment.getText().toString());
+                commentOfFlag.setImg(MyApplication.userImg);
+                mComments.add(commentOfFlag);
+                adapter.notifyDataSetChanged();
 
-                dialog.dismiss();
 
-                Toast toast = new Toast(getApplicationContext());
-                //创建一个填充物，用于填充Toast
-                LayoutInflater inflater = LayoutInflater.from(FlagDetailActivity.this);
-                //填充物来自的xml文件，在这里改成一个view
-                //实现xml到view的转变
-                View view = inflater.inflate(R.layout.toast_succeed, null);
-                //不一定需要，找到xml里面的组件，摄制组建里面的具体内容
-//                ImageView imageView1 = view.findViewById(R.id.img_toast);
-//                TextView textView1 = view.findViewById(R.id.tv_toast);
-//                imageView1.setImageResource(R.drawable.smile);
-//                textView1.setText("哈哈哈哈哈");
-                toast.setView(view);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.setDuration(Toast.LENGTH_SHORT);
-                showMyToast(toast, 1000);
+//                tv.setText(""+(flag.getComments()+1));
+//                btn_comments.setBackgroundResource(R.drawable.commentlight);
+
+//                postComment();
+                new Thread(){
+                    @Override
+                    public void run() {
+                        String token = SPManager.setting_get("token", FlagDetailActivity.this);
+
+                        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                                .followRedirects(false)
+                                .addInterceptor(new RedirectInterceptor())
+                                .build();
+
+                        String json = "{\"openid\":\""+flag.getOpenid()+"\"," +
+                                "\"flag_id\":\""+ flag.getId() +"\"," +
+                                "\"comment\":{" +
+                                "\"id\":\"\"," +
+                                "\"from_id\":\"\"," +
+                                "\"img\":\""+MyApplication.userImg+"\","+
+                                "\"name\":\""+MyApplication.userName+"\","+
+                                "\"content\":\""+edt_comment.getText()+"\"," +
+                                "\"time\":0}}";
+//                        String json = "{\"openid\":\""+flag.getOpenid()+"\"," +
+//                                "\"flag_id\":\""+ flag.getId() +"\"," +
+//                                "\"comment\":{" +
+//                                "\"id\":\"\"," +
+//                                "\"from_id\":\"\"," +
+//                                "\"img\":\""+MyApplication.userImg+"\","+
+//                                "\"name\":\""+MyApplication.userName+"\","+
+//                                "\"content\":\""+edt_comment.getText()+"\"," +
+//                                "\"time\":0}}";
+
+
+                        Log.d("TestFlag","comment json"+ json);
+
+
+                        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                        Request request = new Request.Builder()
+                                .addHeader("Auth","Bearer " + token )
+                                .url("https://slow.hustonline.net/api/v1/flag/comment")
+                                .post(requestBody)
+                                .build();
+
+                        okHttpClient.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                Log.d("TestLog",e.getMessage());
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                if(response.isSuccessful()) {
+                                    String string = response.body().string();
+                                    Log.d("TestFlag", "post flag comment success" + string);
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+
+
+                                            tv.setText(String.valueOf(Integer.parseInt(tv.getText().toString().trim())+1));
+                                            dialog.dismiss();
+                                            Toast toast = new Toast(getApplicationContext());
+                                            //创建一个填充物，用于填充Toast
+                                            LayoutInflater inflater = LayoutInflater.from(FlagDetailActivity.this);
+                                            //填充物来自的xml文件，在这里改成一个view
+                                            // 实现xml到view的转变
+                                            View view = inflater.inflate(R.layout.toast_succeed, null);
+                                            toast.setView(view);
+                                            toast.setGravity(Gravity.CENTER, 0, 0);
+                                            toast.setDuration(Toast.LENGTH_SHORT);
+                                            showMyToast(toast, 1000);
+                                        }
+                                    });
+                                }else{
+                                    Log.d("TestFlag", "post flag comment error"+response.code()+response);
+                                }
+
+
+                            }
+                        });
+                    }
+                }.start();
+
 
             }
         });
@@ -257,5 +523,14 @@ public class FlagDetailActivity  extends AppCompatActivity {
             }
         }, cnt );
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        MyApplication.getInstance().setLikes(likes);
+        MyApplication.getInstance().setComments(mComments);
+        Intent intent = new Intent();
+        setResult(1,intent);
+        finish();
     }
 }

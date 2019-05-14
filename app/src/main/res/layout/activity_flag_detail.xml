@@ -98,15 +98,6 @@
                 android:layout_marginTop="3dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:text="大江东去浪淘尽，千古风流人物
-啊哈哈哈啊浪腾腾腾
-浪浪浪
-哈哈
-fff
-fff
-fff
-fff
-fff"
                 android:id="@+id/tv_contentOfFlag"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -179,7 +170,7 @@ fff"
             android:layout_margin="16dp"
             android:background="@drawable/comments_back"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
            <ListView
                android:id="@+id/listView"
                android:scrollbars="none"

@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.example.tufengyi.manlife.bean.DailyAssignment;
 import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
+import com.example.tufengyi.manlife.utils.tools.DateUtil;
 import com.example.tufengyi.manlife.view.MyDialog1;
 
 import java.io.IOException;
@@ -66,7 +68,7 @@ public class AddAssActivity extends AppCompatActivity {
             }
         });
 
-        ImageView btn_back = (ImageView) findViewById(R.id.back);
+        LinearLayout btn_back = (LinearLayout) findViewById(R.id.ll_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,18 +98,14 @@ public class AddAssActivity extends AppCompatActivity {
         updateClick(icon9,8,"吃药");
 
 
-        ImageView gou = findViewById(R.id.gou);
+        final RelativeLayout gou = findViewById(R.id.rl_gou);
         gou.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(lastll !=null) {
-
+                    gou.setEnabled(false);
+                    gou.setClickable(false);
                     //这里要本地储存， 为了能够做到断开打卡（本地+云端）
-
-
-
-
-
                     new Thread(){
                         @Override
                         public void run(){
@@ -151,25 +149,25 @@ public class AddAssActivity extends AppCompatActivity {
                                         Log.d("TestRoutine","substring objId"+objId);
 
 
-                                        StringBuffer sb = new StringBuffer();
-                                        Calendar cal_buff = Calendar.getInstance();
-
-                                        sb.append(cal_buff.get(Calendar.YEAR));
-                                        sb.append("-");
-                                        if (cal_buff.get(Calendar.MONTH) + 1 >= 0 && cal_buff.get(Calendar.MONTH) + 1 < 10) {
-                                            sb.append("0");
-                                        }
-                                        sb.append(cal_buff.get(Calendar.MONTH) + 1);
-                                        sb.append("-");
-                                        if (cal_buff.get(Calendar.DAY_OF_MONTH) >= 0 && cal_buff.get(Calendar.DAY_OF_MONTH) < 10) {
-                                            sb.append("0");
-                                        }
-                                        sb.append(cal_buff.get(Calendar.DAY_OF_MONTH));
-                                        //格式 yyyy-MM-dd
-                                        String date = String.valueOf(sb);
+//                                        StringBuffer sb = new StringBuffer();
+//                                        Calendar cal_buff = Calendar.getInstance();
+//
+//                                        sb.append(cal_buff.get(Calendar.YEAR));
+//                                        sb.append("-");
+//                                        if (cal_buff.get(Calendar.MONTH) + 1 >= 0 && cal_buff.get(Calendar.MONTH) + 1 < 10) {
+//                                            sb.append("0");
+//                                        }
+//                                        sb.append(cal_buff.get(Calendar.MONTH) + 1);
+//                                        sb.append("-");
+//                                        if (cal_buff.get(Calendar.DAY_OF_MONTH) >= 0 && cal_buff.get(Calendar.DAY_OF_MONTH) < 10) {
+//                                            sb.append("0");
+//                                        }
+//                                        sb.append(cal_buff.get(Calendar.DAY_OF_MONTH));
+//                                        //格式 yyyy-MM-dd
+//                                        String date = String.valueOf(sb);
+                                        String date = DateUtil.stampToDate(System.currentTimeMillis());
                                         DailyAssignment ass = new DailyAssignment(objId,date, title, num, "no", 0);//把id加进来,而且本地n天就n天
                                         dailyAssDao.insert(ass);
-
 
                                         runOnUiThread(new Runnable() {
                                             @Override
@@ -198,6 +196,8 @@ public class AddAssActivity extends AppCompatActivity {
                             });
                         }
                     }.start();
+
+
 
                     //Toast.makeText(AddAssActivity.this, "succeeded", Toast.LENGTH_SHORT).show();
 

@@ -1,6 +1,5 @@
 package com.example.tufengyi.manlife.view;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -14,7 +13,6 @@ import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -539,8 +537,7 @@ public class CustomSwipeRefreshLayout extends ViewGroup implements NestedScrolli
         if (mTarget == null) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                if (!child.equals(mCircleView)) {//找到recyclerView
-                    //Log.d("TestSwipe","child instance of list"+(child instanceof RecyclerView));
+                if (!child.equals(mCircleView)) {
                     mTarget = child;
                     break;
                 }
@@ -571,40 +568,16 @@ public class CustomSwipeRefreshLayout extends ViewGroup implements NestedScrolli
             return;
         }
         final View child = mTarget;
-        //target is AbsListView here
-
         final int childLeft = getPaddingLeft();
         final int childTop = getPaddingTop();
 //            final int childTop = (int) (getPaddingTop()+child.getTranslationY());
         final int childWidth = width - getPaddingLeft() - getPaddingRight();
         final int childHeight = height - getPaddingTop() - getPaddingBottom();
-        //AbsListView's Height
         int circleWidth = mCircleView.getMeasuredWidth();
         int circleHeight = mCircleView.getMeasuredHeight();
-
-//        Log.d("TestSwipe","childTop"+ mTarget.getY());
-//        Log.d("TestSwipe","childHeight"+mTarget.getHeight());
-//        Log.d("TestSwipe","childHeight up"+childHeight);
-
-        Log.d("TestSwipe","mCurrentTargetOffsetButtom"+mCurrentTargetOffsetTop+circleHeight);
-
+        child.layout(childLeft,  childTop, childLeft + childWidth, childTop + childHeight);
         mCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetTop,
                 (width / 2 + circleWidth / 2), mCurrentTargetOffsetTop + circleHeight);
-
-        //如果往上拉，设置位置不能再往上
-//        if(mTarget.getY() < 0 ){//如果 childTop 到了0 不允许再往上
-//            return;
-////            child.layout(childLeft,  0, childLeft + childWidth, childHeight);
-//        }else{
-            child.layout(childLeft,  childTop, childLeft + childWidth, childTop + childHeight);
-//        }
-//
-//        if(mCurrentTargetOffsetTop+circleHeight <=0){
-//            child.layout(0,  0, childLeft + childWidth, mTarget.getHeight());
-//        }else{
-//            child.layout(childLeft,  childTop, childLeft + childWidth, childTop + childHeight);
-//        }
-
 //            修改进度圈的X坐标使之位于左边
 //        mCircleView.layout(childLeft, mCurrentTargetOffsetTop,
 //                childLeft+circleWidth, mCurrentTargetOffsetTop + circleHeight);
@@ -702,7 +675,6 @@ public class CustomSwipeRefreshLayout extends ViewGroup implements NestedScrolli
                 break;
 
             case MotionEvent.ACTION_MOVE:
-
                 if (mActivePointerId == INVALID_POINTER) {
                     Log.e(LOG_TAG, "Got ACTION_MOVE event but don't have an active pointer id.");
                     return false;
@@ -1008,7 +980,6 @@ public class CustomSwipeRefreshLayout extends ViewGroup implements NestedScrolli
     }
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        // removed a final
         final int action = MotionEventCompat.getActionMasked(ev);
         int pointerIndex = -1;
 
@@ -1038,9 +1009,7 @@ public class CustomSwipeRefreshLayout extends ViewGroup implements NestedScrolli
 //                    记录手指移动的距离,mInitialMotionY是初始的位置，DRAG_RATE是拖拽因子。
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
 //                    赋值给mTarget的top使之产生拖动效果
-                mTarget.setTranslationY(overscrollTop);//有个动画效果
-
-
+                mTarget.setTranslationY(overscrollTop);
                 if (mIsBeingDragged) {
                     if (overscrollTop > 0) {
                         moveSpinner(overscrollTop);

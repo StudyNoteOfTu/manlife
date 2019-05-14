@@ -18,7 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,7 +44,8 @@ public class PreviewActivity extends AppCompatActivity {
             "android.permission.READ_EXTERNAL_STORAGE",
             "android.permission.WRITE_EXTERNAL_STORAGE" };
 
-    private ImageView back,gou;
+    private LinearLayout back;
+    private RelativeLayout gou;
     private TextView tv_date;
     private ListView listView;
     private List<DailyAssignment> list = new ArrayList<DailyAssignment>();
@@ -128,47 +131,51 @@ public class PreviewActivity extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         adapter = new MyListAdapter(list);
         listView.setAdapter(adapter);
-        back = findViewById(R.id.back);
+        back = findViewById(R.id.ll_back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-        gou = findViewById(R.id.gou);
+        gou = findViewById(R.id.rl_gou);
         gou.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DisplayMetrics metric = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(metric);
-                int width = metric.widthPixels;     // 屏幕宽度（像素）
-                int height = metric.heightPixels;   // 屏幕高度（像素）
-                View view_subTitle = LayoutInflater.from(PreviewActivity.this).inflate(R.layout.layout_subtitle, null, false);
+                if(list.size()==0) {
+                    Toast.makeText(PreviewActivity.this, "今日还没有完成打卡任务噢", Toast.LENGTH_SHORT).show();
+                }else{
+                    DisplayMetrics metric = new DisplayMetrics();
+                    getWindowManager().getDefaultDisplay().getMetrics(metric);
+                    int width = metric.widthPixels;     // 屏幕宽度（像素）
+                    int height = metric.heightPixels;   // 屏幕高度（像素）
+                    View view_subTitle = LayoutInflater.from(PreviewActivity.this).inflate(R.layout.layout_subtitle, null, false);
 
-                layoutView(view_subTitle,width,height);
+                    layoutView(view_subTitle, width, height);
 
-                ScrollView sv = view_subTitle.findViewById(R.id.scrollView);
+                    ScrollView sv = view_subTitle.findViewById(R.id.scrollView);
 
-                ImageView iv = view_subTitle.findViewById(R.id.img_back);
+                    ImageView iv = view_subTitle.findViewById(R.id.img_back);
 
-                Bitmap img_back = loadBitmapFromView(iv);
+                    Bitmap img_back = loadBitmapFromView(iv);
 
-                Bitmap subTitle = loadBitmapFromView(sv);
+                    Bitmap subTitle = loadBitmapFromView(sv);
 
-                View tv_pre = LayoutInflater.from(PreviewActivity.this).inflate(R.layout.activity_preview,null,false);
-                layoutView(tv_pre,width,height);
+                    View tv_pre = LayoutInflater.from(PreviewActivity.this).inflate(R.layout.activity_preview, null, false);
+                    layoutView(tv_pre, width, height);
 
-                TextView tv = tv_pre.findViewById(R.id.tv_date);
-                Calendar cal = Calendar.getInstance();
-                String date = "我的"+String.valueOf(cal.get(Calendar.MONTH)+1)+"月"+cal.get(Calendar.DAY_OF_MONTH)+"日";
-                tv.setText(date);
+                    TextView tv = tv_pre.findViewById(R.id.tv_date);
+                    Calendar cal = Calendar.getInstance();
+                    String date = "我的" + String.valueOf(cal.get(Calendar.MONTH) + 1) + "月" + cal.get(Calendar.DAY_OF_MONTH) + "日";
+                    tv.setText(date);
 
-                Bitmap tv_bit = loadBitmapFromView(tv);
+                    Bitmap tv_bit = loadBitmapFromView(tv);
 
-                ScreenShot.saveImageToGallery(PreviewActivity.this,ScreenShot.createBitmap(subTitle,img_back,tv_bit,listView,PreviewActivity.this),"慢慢");
+                    ScreenShot.saveImageToGallery(PreviewActivity.this, ScreenShot.createBitmap(subTitle, img_back, tv_bit, listView, PreviewActivity.this), "慢慢");
 
-                Toast.makeText(PreviewActivity.this, "已保存至相册", Toast.LENGTH_SHORT).show();
-                finish();
+                    Toast.makeText(PreviewActivity.this, "已保存至相册", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             }
         });
 

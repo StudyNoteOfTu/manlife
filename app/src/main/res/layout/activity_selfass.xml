@@ -14,14 +14,18 @@
         android:background="#ffc107"
         android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/back"
-            android:src="@drawable/back"
-            android:layout_gravity="center"
-            android:layout_marginRight="13dp"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="10dp"/>
+        <LinearLayout
+            android:id="@+id/ll_back"
+            android:layout_width="80dp"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/back"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/back"/>
+        </LinearLayout>
 
         <TextView
             android:textColor="#ffffff"
@@ -33,7 +37,7 @@
             android:textSize="21sp"/>
 
         <View
-            android:layout_width="48dp"
+            android:layout_width="80dp"
             android:layout_height="48dp"
             android:layout_marginRight="10dp"/>
 

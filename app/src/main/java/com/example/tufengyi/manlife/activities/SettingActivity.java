@@ -6,12 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.tufengyi.manlife.R;
-import com.example.tufengyi.manlife.bean.Settings;
 import com.example.tufengyi.manlife.db.SPManager;
-import com.example.tufengyi.manlife.utils.dao.SettingsDao;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SettingActivity  extends AppCompatActivity {
 

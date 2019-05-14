@@ -13,15 +13,18 @@
         android:layout_height="50dp"
         android:background="#ffc107">
 
-        <ImageView
-            android:layout_alignParentLeft="true"
-            android:id="@+id/back"
-            android:src="@drawable/back"
-            android:layout_gravity="center"
-            android:layout_marginRight="13dp"
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"/>
+        <LinearLayout
+            android:id="@+id/ll_back"
+            android:layout_width="80dp"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/back"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/back"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="0dp"
@@ -32,13 +35,20 @@
             android:gravity="center"
             android:textColor="#ffffff"/>
 
-        <ImageView
-            android:src="@drawable/topgou"
-            android:id="@+id/gou"
-            android:layout_gravity="center"
-            android:layout_width="28dp"
-            android:layout_marginRight="12dp"
-            android:layout_height="28dp"/>
+        <RelativeLayout
+            android:id="@+id/rl_gou"
+            android:layout_width="80dp"
+            android:layout_height="match_parent">
+            <ImageView
+                android:src="@drawable/topgou"
+                android:id="@+id/gou"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="15dp"
+                android:layout_alignParentRight="true"
+                />
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout

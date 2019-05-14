@@ -108,7 +108,7 @@ public class EditAssActivity extends AppCompatActivity {
 
     private void initViews(){
 
-        ImageView btn_back = (ImageView) findViewById(R.id.back);
+        LinearLayout btn_back = (LinearLayout) findViewById(R.id.ll_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

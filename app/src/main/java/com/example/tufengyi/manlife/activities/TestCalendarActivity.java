@@ -120,7 +120,7 @@ public class TestCalendarActivity extends BaseActivity implements
     private boolean isMenuOpen = false;
     private LinearLayout ll_article,ll_print,ll_menu;
     private View darkView;
-    private ImageView btn_more;
+    private RelativeLayout btn_more;
 
     @SuppressLint("HandlerLeak")
     private android.os.Handler handler = new Handler(){
@@ -286,7 +286,7 @@ public class TestCalendarActivity extends BaseActivity implements
             }
         });
 
-        btn_more = findViewById(R.id.more);
+        btn_more = findViewById(R.id.rl_more);
         btn_more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -308,7 +308,7 @@ public class TestCalendarActivity extends BaseActivity implements
 
         setStatusBarDarkMode();
 
-        ImageView btn_back = (ImageView) findViewById(R.id.back);
+        LinearLayout btn_back = (LinearLayout) findViewById(R.id.ll_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -638,6 +638,22 @@ public class TestCalendarActivity extends BaseActivity implements
                     }
                 }
             }
+            for(int i=0;i<mObjects.size();i++){
+                String year =String.valueOf(calendar.getYear());
+                int tempMonth = calendar.getMonth();
+                String month = tempMonth<10 ? "0"+String.valueOf(tempMonth) : String.valueOf(tempMonth);
+                int tempDay = calendar.getDay();
+                String day = tempDay < 10 ? "0"+String.valueOf(tempDay) : String.valueOf(tempDay);
+
+
+                if(mObjects.get(i)!=null){
+                    if(mObjects.get(i) instanceof PunchedAss && ((PunchedAss) mObjects.get(i)).getDate().substring(0,10).equals(year+"-"+month+"-"+day)){
+                        //  Toast.makeText(this, "ok", Toast.LENGTH_SHORT).show();
+                        moveToPosition(i-1);
+                        break;
+                    }
+                }
+            }
 
         }
 
@@ -813,8 +829,18 @@ public class TestCalendarActivity extends BaseActivity implements
                 ((ViewHolderTopTitle)holder).tv_topTitle.setText(ht.getDate());
             }else if(holder instanceof ViewHolderSubTitle){
                 SubTitle st = (SubTitle) objects.get(position);
-                //这里记得改
-                ((ViewHolderSubTitle)holder).tv_subTitle.setText(st.getDate()+"th");
+                if(st.getDate().equals("01")){
+                    ((ViewHolderSubTitle)holder).tv_subTitle.setText("1st");
+                }else if(st.getDate().equals("02")){
+                    ((ViewHolderSubTitle)holder).tv_subTitle.setText("2nd");
+                }else if(st.getDate().equals("03")){
+                    ((ViewHolderSubTitle)holder).tv_subTitle.setText("3rd");
+                }else if(Integer.parseInt(st.getDate())>3&&Integer.parseInt(st.getDate())<10){
+                    ((ViewHolderSubTitle)holder).tv_subTitle.setText(st.getDate().substring(1)+"th");
+                }else{
+                    ((ViewHolderSubTitle)holder).tv_subTitle.setText(st.getDate()+"th");
+                }
+
             }else if(holder instanceof ViewHolderPunched){
                 final PunchedAss pAss = (PunchedAss) objects.get(position);
                 ((ViewHolderPunched)holder).img_ass.setBackgroundResource(icons[pAss.getIcon()]);

@@ -1,5 +1,6 @@
 package com.example.tufengyi.manlife.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -8,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.tufengyi.manlife.MyApplication;
@@ -16,6 +19,7 @@ import com.example.tufengyi.manlife.bean.DayLog;
 import com.example.tufengyi.manlife.bean.PunchedAss;
 import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
+import com.example.tufengyi.manlife.utils.tools.DateUtil;
 //import com.example.tufengyi.manlife.utils.dao.PunchedAssDao;
 
 import java.io.IOException;
@@ -35,21 +39,66 @@ public class EditlogActivity extends AppCompatActivity {
 
 //    private PunchedAssDao punchedAssDao;
 
+    int status = 0;//0添加 1 更新今日 2 更新往日
+    //来源
+    //1.首页打开编辑 可能已发送，注意 如果有字段说明已经更新过，那么接下来就是修改，如果没字段就说明这天还没更新，更新需要id，需要保存在SP
+    //2.已发送日志打开修改，传入id和content，进行修改
+
+    String log_id;
+    long log_time;
+    String log_content;
+
+    EditText editText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editlog);
+
+
 
         Thread.setDefaultUncaughtExceptionHandler(MyApplication.sUncaughtExceptionHandler);
 
 //        punchedAssDao = new PunchedAssDao(EditlogActivity.this);
 
         initViews();
+        initDatas();
+    }
+
+    private void initDatas(){
+        //从LogDetActivity传来
+        Intent intent = getIntent();
+        log_id = intent.getStringExtra("log_id");
+        log_time = intent.getLongExtra("log_time",0);
+        log_content = intent.getStringExtra("log");
+        status = 1;//外面传来的一定更新,判断是否传入的是今日
+        if(log_id==null || log_id.isEmpty()){
+            //从首页打开编辑
+            if(DateUtil.stampToDate(System.currentTimeMillis()).equals(SPManager.setting_get("log_time",EditlogActivity.this))){
+                //如果是同一天 更新
+                status = 1;
+                Log.d("Test54","log content"+SPManager.setting_get("log",EditlogActivity.this));
+                Log.d("Test54","log id"+SPManager.setting_get("log_id",EditlogActivity.this));
+                editText.setText(SPManager.setting_get("log",EditlogActivity.this));
+                log_id = SPManager.setting_get("log_id",EditlogActivity.this);
+            }else{//不是同一天，那么就不添加字段
+                //添加
+                status = 0;
+
+            }
+        }else if(DateUtil.stampToDate(log_time).equals(System.currentTimeMillis())){//如果是今日
+            status = 1;
+            editText.setText(log_content);
+        }else{
+            //如果是过去的flag
+            status = 2;
+            editText.setText(log_content);
+        }
+
     }
 
     private void initViews(){
-        final EditText editText = findViewById(R.id.edt_log);
-        ImageView back = findViewById(R.id.back);
+        editText = findViewById(R.id.edt_log);
+        LinearLayout back = findViewById(R.id.ll_back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +106,7 @@ public class EditlogActivity extends AppCompatActivity {
             }
         });
 
-        ImageView ok = findViewById(R.id.btn_ok);
+        RelativeLayout ok = findViewById(R.id.rl_gou);
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,55 +136,205 @@ public class EditlogActivity extends AppCompatActivity {
 //                    PunchedAss pAss = new PunchedAss(date, "日志", 9);
 //                    punchedAssDao.insert(pAss);
 
+                    if(status == 0){//添加
+                        //添加
+                        new Thread(){
+                            @Override
+                            public void run(){
 
-                    new Thread(){
-                        @Override
-                        public void run(){
+                                String token = SPManager.setting_get("token",EditlogActivity.this);
 
-                            String token = SPManager.setting_get("token",EditlogActivity.this);
+                                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                                        .followRedirects(false)
+                                        .addInterceptor(new RedirectInterceptor())
+                                        .build();
 
-                            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                                    .followRedirects(false)
-                                    .addInterceptor(new RedirectInterceptor())
-                                    .build();
+                                final String content = editText.getText().toString();
 
-                            String content = editText.getText().toString();
-
-                            String json = "{\"id\":\"\"," +
-                                    "\"time\":"+System.currentTimeMillis()+"," +
-                                    "\"content\":\""+content+"\"}";
-
-                            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
-
-
-                            Request request = new Request.Builder()
-                                    .addHeader("Auth","Bearer " + token )
-                                    .url("https://slow.hustonline.net/api/v1/record")
-                                    .post(requestBody)
-                                    .build();
+                                String json = "{\"id\":\"\"," +
+                                        "\"time\":"+System.currentTimeMillis()+"," +
+                                        "\"content\":\""+content+"\"}";
 
 
-                            okHttpClient.newCall(request).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-                                    android.util.Log.d("TestLog",e.getMessage());
-                                }
 
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    if(response.isSuccessful()) {
-                                        String string = response.body().string();
-                                        android.util.Log.d("TestLog", "postLog success" + string);
-                                    }else{
-                                        android.util.Log.d("TestLog", "postLog error"+response.code()+response);
+                                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                                Request request = new Request.Builder()
+                                        .addHeader("Auth","Bearer " + token )
+                                        .url("https://slow.hustonline.net/api/v1/record")
+                                        .post(requestBody)
+                                        .build();
+
+
+                                okHttpClient.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        android.util.Log.d("TestLog",e.getMessage());
                                     }
 
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        if(response.isSuccessful()) {
+                                            String string = response.body().string();
+                                            android.util.Log.d("TestLog", "postLog success" + string);
+                                            android.util.Log.d("Test54", "postLog success" + string);
+                                            String temp = string.substring(string.indexOf("\"id\"")+6);
+                                            final String log_id = temp.substring(0,temp.indexOf("\""));
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    //添加到spmanager
+                                                    SPManager.setting_add("log",content,EditlogActivity.this);
+                                                    SPManager.setting_add("log_time", DateUtil.stampToDate(System.currentTimeMillis()),EditlogActivity.this);
+                                                    SPManager.setting_add("log_id",log_id,EditlogActivity.this);
+                                                    Log.d("Test54","log content"+SPManager.setting_get("log",EditlogActivity.this));
+                                                    Log.d("Test54","log id"+SPManager.setting_get("log_id",EditlogActivity.this));
+                                                    finish();
+                                                }
+                                            });
+                                        }else{
+                                            android.util.Log.d("TestLog", "postLog error"+response.code()+response);
+                                        }
 
-                                }
-                            });
 
-                        }
-                    }.start();
+                                    }
+                                });
+
+                            }
+                        }.start();
+                    }else if(status == 1){
+                        //更新今日
+                        new Thread(){
+                            @Override
+                            public void run(){
+
+                                String token = SPManager.setting_get("token",EditlogActivity.this);
+
+                                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                                        .followRedirects(false)
+                                        .addInterceptor(new RedirectInterceptor())
+                                        .build();
+
+                                final String content = editText.getText().toString();
+
+                                String json = "{\"id\":\""+log_id+"\"," +
+                                        "\"time\":"+System.currentTimeMillis()+"," +
+                                        "\"content\":\""+content+"\"}";
+
+
+
+                                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                                Request request = new Request.Builder()
+                                        .addHeader("Auth","Bearer " + token )
+                                        .url("https://slow.hustonline.net/api/v1/record")
+                                        .put(requestBody)
+                                        .build();
+
+
+                                okHttpClient.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        android.util.Log.d("TestLog",e.getMessage());
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        if(response.isSuccessful()) {
+                                            String string = response.body().string();
+                                            android.util.Log.d("TestLog", "putLog success" + string);
+                                            android.util.Log.d("Test54", "putLog success" + string);
+                                            String temp = string.substring(string.indexOf("\"id\"")+5);
+                                            final String log_id = temp.substring(0,temp.indexOf("\""));
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    //添加到spmanager
+                                                    SPManager.setting_add("log",content,EditlogActivity.this);
+                                                    SPManager.setting_add("log_time", DateUtil.stampToDate(System.currentTimeMillis()),EditlogActivity.this);
+                                                    SPManager.setting_add("log_id",log_id,EditlogActivity.this);
+                                                    Log.d("Test54","log content"+SPManager.setting_get("log",EditlogActivity.this));
+                                                    Log.d("Test54","log id"+SPManager.setting_get("log_id",EditlogActivity.this));
+                                                    finish();
+                                                }
+                                            });
+                                        }else{
+                                            android.util.Log.d("TestLog", "postLog error"+response.code()+response);
+                                        }
+
+
+                                    }
+                                });
+
+                            }
+                        }.start();
+                    }else{
+                        //更新往日
+                        new Thread(){
+                            @Override
+                            public void run(){
+
+                                String token = SPManager.setting_get("token",EditlogActivity.this);
+
+                                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                                        .followRedirects(false)
+                                        .addInterceptor(new RedirectInterceptor())
+                                        .build();
+
+                                final String content = editText.getText().toString();
+
+                                String json = "{\"id\":\""+log_id+"\"," +
+                                        "\"time\":"+System.currentTimeMillis()+"," +
+                                        "\"content\":\""+content+"\"}";
+
+
+
+                                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
+
+                                Request request = new Request.Builder()
+                                        .addHeader("Auth","Bearer " + token )
+                                        .url("https://slow.hustonline.net/api/v1/record")
+                                        .put(requestBody)
+                                        .build();
+
+
+                                okHttpClient.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        android.util.Log.d("TestLog",e.getMessage());
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        if(response.isSuccessful()) {
+                                            String string = response.body().string();
+                                            android.util.Log.d("TestLog", "putLog success" + string);
+                                            android.util.Log.d("Test54", "putLog success" + string);
+                                            String temp = string.substring(string.indexOf("\"id\"")+5);
+                                            final String log_id = temp.substring(0,temp.indexOf("\""));
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    //不用添加到spmanager
+                                                    finish();
+                                                }
+                                            });
+                                        }else{
+                                            android.util.Log.d("TestLog", "postLog error"+response.code()+response);
+                                        }
+
+
+                                    }
+                                });
+
+                            }
+                        }.start();
+                    }
+
+
 
                     //以下步骤只能在主线程中进行
 
@@ -157,7 +356,6 @@ public class EditlogActivity extends AppCompatActivity {
                     showMyToast(toast, 1000);
 
 
-                    finish();
                 }
             }
         });
