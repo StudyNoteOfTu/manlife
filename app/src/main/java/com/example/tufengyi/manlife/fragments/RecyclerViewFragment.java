@@ -191,6 +191,7 @@ public class RecyclerViewFragment extends Fragment {
                     if(mDailyAss_temp.getFinish().equals("no")){
 
                     }else{
+                        mDailyAss_temp.setFinish("no");
                         //如果已完成，那么可以取消签到
                         StringBuffer sb = new StringBuffer();
                         Calendar cal_buff = Calendar.getInstance();
@@ -294,6 +295,9 @@ public class RecyclerViewFragment extends Fragment {
                         dailyAssDao = new DailyAssDao(mContext);
                         holder.ll_item.setBackgroundResource(R.drawable.finishback);
                         holder.btn_finish.setVisibility(GONE);
+                        holder.tv_progress.setText("已坚持" + String.valueOf(mDailyAss_temp.getProgress() + 1) + "天");
+
+                        mDailyAss_temp.setProgress(mDailyAss_temp.getProgress()+1);
                         holder.finish = "yes";
                         holder.progress++;
                         holder.dates = date;
@@ -302,9 +306,7 @@ public class RecyclerViewFragment extends Fragment {
                                 "yes", mDailyAss_temp.getProgress() + 1);
                         dailyAssDao.update(dailyAss_temp);
 
-                        holder.tv_progress.setText("已坚持" + String.valueOf(mDailyAss_temp.getProgress() + 1) + "天");
 
-                        mDailyAss_temp.setProgress(mDailyAss_temp.getProgress()+1);
                         //这里进行post更新
 
                         POST(mDailyAss_temp,holder);

@@ -45,6 +45,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.Call;
@@ -96,7 +97,26 @@ public class LoginActivity extends AppCompatActivity {
                     SPManager.setting_add("token","",LoginActivity.this);
                     SPManager.setting_add("first_download","no",LoginActivity.this);
                 }
-                String token = SPManager.setting_get("token",LoginActivity.this);
+
+                //根据登录时间判断，如果时间不对 那么token == null 让用户去登录
+                long lastLogin = DateUtil.full_stringToDate(SPManager.setting_get("last_login_time",LoginActivity.this));
+                long thisLogin = DateUtil.full_stringToDate(DateUtil.full_stampToDate(System.currentTimeMillis()));
+                String token;
+                if(thisLogin - lastLogin >= 600000000){
+                    //超过七天未登录
+                    token = null;
+                }else if(thisLogin - lastLogin >= 259200000){
+                    //超过三天未登录
+                    token = SPManager.setting_get("token",LoginActivity.this);
+                    refreshToken(token);
+
+
+                } else {
+                    token = SPManager.setting_get("token",LoginActivity.this);
+                    refreshToken(token);
+                    SPManager.setting_add("last_login_time",DateUtil.full_stampToDate(System.currentTimeMillis()),LoginActivity.this);
+                }
+
                 Log.d("Test427","token is "+ token);
                 if(token!=null && !token.isEmpty()){//token不为null且不为空
                     Log.d("Test427","begin intent");
@@ -219,6 +239,10 @@ public class LoginActivity extends AppCompatActivity {
 
         if(SPManager.setting_get("first_download",LoginActivity.this)==null){
             SPManager.setting_add("first_download","yes",LoginActivity.this);
+        }
+
+        if(SPManager.setting_get("last_login_time",LoginActivity.this)==null){
+            SPManager.setting_add("last_login_time","2000-01-07 00:00:00",LoginActivity.this);
         }
     }
 
@@ -512,10 +536,12 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call call, Response response) throws IOException {
                         final String string = response.body().string();
                         Log.d("Tu513","refresh get token ："+string);
+                        Log.d("Tu513","last token ："+token);
 
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                SPManager.setting_add("last_login_time",DateUtil.full_stampToDate(System.currentTimeMillis()),LoginActivity.this);
                                 String token = string.substring(string.indexOf("token")+8,string.length()-2);
                                 SPManager.setting_add("token",token,LoginActivity.this);
                                 //这里应该用回调接口，写的真垃圾
@@ -540,5 +566,7 @@ public class LoginActivity extends AppCompatActivity {
         backHome.addCategory(Intent.CATEGORY_HOME);
         startActivity(backHome);
     }
+
+
 }
 
