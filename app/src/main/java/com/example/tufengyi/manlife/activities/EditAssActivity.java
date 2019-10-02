@@ -19,15 +19,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.bean.DailyAssignment;
 import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
 import com.example.tufengyi.manlife.utils.tools.ScreenUtils;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -97,6 +100,7 @@ public class EditAssActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
+        MobclickAgent.onPause(this);
         yes = 0;
     }
 
@@ -183,10 +187,20 @@ public class EditAssActivity extends AppCompatActivity {
                 if(title.trim().isEmpty()){
                     showDialog("");
                 }else{
+                    //添加打卡埋点
+                    HashMap<String,String> map  = new HashMap<>();
+                    map.put("user",MyApplication.userId);
+                    MobclickAgent.onEvent(EditAssActivity.this,"setrecordnumber",map);
                     if(yes ==1 ){//有传来
                         //这里进行put更新
                         PUT(title);
                     }else {
+                        //埋点 自定义数量
+                        HashMap<String,String> map2 = new HashMap<>();
+                        map2.put("user", MyApplication.userId);
+                        MobclickAgent.onEvent(EditAssActivity.this,"userdefined_number",map2);
+
+
                         //如果没传来，那么就是自定义
                         //这里进行post添加
                         POST(title);
@@ -507,7 +521,15 @@ public class EditAssActivity extends AppCompatActivity {
                 timer.cancel();
             }
         }, cnt );
-
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("userdefined");
+        MobclickAgent.onResume(this);
+    }
+
+
 
 }

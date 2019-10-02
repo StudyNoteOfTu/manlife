@@ -4,6 +4,7 @@ package com.example.tufengyi.manlife.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
@@ -21,6 +22,7 @@ import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.base.BaseActivity;
 import com.example.tufengyi.manlife.bean.DayLog;
 
+import com.example.tufengyi.manlife.bean.Flag;
 import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.tools.DateUtil;
@@ -249,7 +251,7 @@ public class LogDetActivity extends BaseActivity implements
                         intent.putExtra("log",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getContent());
                         intent.putExtra("log_id",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getId());
                         intent.putExtra("log_time",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getStamp());
-                        startActivity(intent);
+                        startActivityForResult(intent,1);
                         //后面改成forresult
                     }
                 }
@@ -557,42 +559,30 @@ public class LogDetActivity extends BaseActivity implements
             tv_year1.setText(String.valueOf(year));
         }
 
-    private class LogsAdapter extends RecyclerView.Adapter<LogsAdapter.ViewHolder> {
-        //创建list集合，泛型为之前定义的实体类
-        //添加构造方法
-        public LogsAdapter() { }
-        //在onCreateViewHolder（）中完成布局的绑定，同时创建ViewHolder对象，返回ViewHolder对象
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_logs,parent,false);
-            LogsAdapter.ViewHolder holder = new LogsAdapter.ViewHolder(view);
-            return holder;
-        }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch(requestCode){
+            case 1:
+                if(resultCode == 1){
+                    //添加flag
+//                    intent.putExtra("log",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getContent());
+//                    intent.putExtra("log_id",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getId());
+//                    intent.putExtra("log_time",mSelectedDayLogs.get(mSelectedDayLogs.size()-1).getStamp());
+                    if(data !=null){
+                        String log = data.getStringExtra("log");
+                        String log_id = data.getStringExtra("log_id");
+                        String log_time = data.getStringExtra("log_time");
+                        mSelectedDayLogs.get(mSelectedDayLogs.size()-1).setContent(log);
+                        mSelectedDayLogs.get(mSelectedDayLogs.size()-1).setId(log_id);
 
-
-        //在内部类中完成对控件的绑定
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            private TextView tv_log;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-                tv_log = (TextView) itemView.findViewById(R.id.tv_log);
-            }
-        }
-
-
-        //在onBindViewHolder（）中完成对数据的填充
-        @Override
-        public void onBindViewHolder(final LogsAdapter.ViewHolder holder, int i) {
-           holder.tv_log.setText(mSelectedDayLogs.get(i).getContent());
-        }
-
-        //这个方法很简单了，返回playerList中的子项的个数
-        @Override
-        public int getItemCount() {
-            return mSelectedDayLogs.size();
+                    }
+                }else if(resultCode == 2){
+                    if(data != null) {
+                        String log = data.getStringExtra("");
+                        mSelectedDayLogs.get(mSelectedDayLogs.size()-1).setContent(log);
+                    }
+                }
+                break;
         }
     }
-
-    }
+}

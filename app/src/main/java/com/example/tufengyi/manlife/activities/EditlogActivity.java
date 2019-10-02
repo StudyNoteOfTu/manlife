@@ -20,10 +20,12 @@ import com.example.tufengyi.manlife.bean.PunchedAss;
 import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.tools.DateUtil;
+import com.umeng.analytics.MobclickAgent;
 //import com.example.tufengyi.manlife.utils.dao.PunchedAssDao;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -137,6 +139,10 @@ public class EditlogActivity extends AppCompatActivity {
 //                    punchedAssDao.insert(pAss);
 
                     if(status == 0){//添加
+                        HashMap<String,String> map  = new HashMap<>();
+                        map.put("user",MyApplication.userId);
+                        MobclickAgent.onEvent(EditlogActivity.this,"diarynumber",map);
+
                         //添加
                         new Thread(){
                             @Override
@@ -257,7 +263,15 @@ public class EditlogActivity extends AppCompatActivity {
                                                     SPManager.setting_add("log_id",log_id,EditlogActivity.this);
                                                     Log.d("Test54","log content"+SPManager.setting_get("log",EditlogActivity.this));
                                                     Log.d("Test54","log id"+SPManager.setting_get("log_id",EditlogActivity.this));
+
+                                                    Intent intent = new Intent();
+                                                    intent.putExtra("log",content);
+                                                    intent.putExtra("log_time",DateUtil.stampToDate(System.currentTimeMillis()));
+                                                    intent.putExtra("log_id",log_id);
+                                                    setResult(1,intent);
                                                     finish();
+
+                                                    //这里要把数据回传回去
                                                 }
                                             });
                                         }else{
@@ -319,6 +333,9 @@ public class EditlogActivity extends AppCompatActivity {
                                                 @Override
                                                 public void run() {
                                                     //不用添加到spmanager
+                                                    Intent intent = new Intent();
+                                                    intent.putExtra("log",content);
+                                                    setResult(2,intent);
                                                     finish();
                                                 }
                                             });
@@ -381,4 +398,17 @@ public class EditlogActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("diary");
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("diary");
+        MobclickAgent.onPause(this);
+    }
 }

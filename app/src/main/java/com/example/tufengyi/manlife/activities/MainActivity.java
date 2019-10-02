@@ -33,6 +33,7 @@ import com.example.tufengyi.manlife.utils.DonwloadSaveImg;
 import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
 import com.example.tufengyi.manlife.utils.dao.SentenceDao;
 import com.example.tufengyi.manlife.fragments.RecyclerViewFragment;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONObject;
 
@@ -125,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected  void onResume(){
         super.onResume();
+        MobclickAgent.onPageStart("home");
+        MobclickAgent.onResume(this);
 
         RecyclerViewFragment fragment = new RecyclerViewFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -228,6 +231,9 @@ public class MainActivity extends AppCompatActivity {
                     MyApplication.userName = userName;
                     MyApplication.wx_id = wx_id;
 
+                    //当用户使用自有账号登录时，可以这样统计：
+                    MobclickAgent.onProfileSignIn(userId);
+
                     if(SPManager.setting_get("img_url",MainActivity.this).equals(userImg)){
 
                         if(BitmapFactory.decodeFile(SPManager.setting_get("img_path",MainActivity.this))==null){
@@ -275,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
+        MobclickAgent.onPageEnd("home");
+        MobclickAgent.onPause(this);
         overridePendingTransition(0,0);
     }
 

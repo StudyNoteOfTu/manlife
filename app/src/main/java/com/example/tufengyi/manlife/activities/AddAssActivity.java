@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tufengyi.manlife.MyApplication;
 import com.example.tufengyi.manlife.R;
 import com.example.tufengyi.manlife.bean.DailyAssignment;
 import com.example.tufengyi.manlife.db.SPManager;
@@ -25,9 +26,11 @@ import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
 import com.example.tufengyi.manlife.utils.tools.DateUtil;
 import com.example.tufengyi.manlife.view.MyDialog1;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,6 +47,7 @@ public class AddAssActivity extends AppCompatActivity {
     private LinearLayout icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,icon9;
     private Button btn_newAss;
     private LinearLayout lastll = null;
+    private LinearLayout ll_item = null;
     private String title = null;
     private int num = -1;
 
@@ -51,22 +55,13 @@ public class AddAssActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addass);
+        setContentView(R.layout.activity_addass_test);
         dailyAssDao = new DailyAssDao(AddAssActivity.this);
         initViews();
 
     }
 
     private void initViews(){
-
-        btn_newAss = (Button) findViewById(R.id.btn_newAss);
-        btn_newAss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AddAssActivity.this,EditAssActivity.class);
-                startActivity(intent);
-            }
-        });
 
         LinearLayout btn_back = (LinearLayout) findViewById(R.id.ll_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +70,23 @@ public class AddAssActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        //ui from activity_addass_test.xml
+        ll_item= (LinearLayout) findViewById(R.id.ll_item);
+
+        btn_newAss = (Button) findViewById(R.id.btn_newAss);
+        btn_newAss.setWidth(ll_item.getWidth());
+
+
+        btn_newAss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AddAssActivity.this,EditAssActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
 
 
         //就9个直接写了， 如果更多改用GridView
@@ -105,6 +117,12 @@ public class AddAssActivity extends AppCompatActivity {
                 if(lastll !=null) {
                     gou.setEnabled(false);
                     gou.setClickable(false);
+
+                    //添加打卡埋点
+                    HashMap<String,String> map  = new HashMap<>();
+                    map.put("user", MyApplication.userId);
+                    MobclickAgent.onEvent(AddAssActivity.this,"setrecordnumber",map);
+
                     //这里要本地储存， 为了能够做到断开打卡（本地+云端）
                     new Thread(){
                         @Override
@@ -252,5 +270,19 @@ public class AddAssActivity extends AppCompatActivity {
             }
         }, cnt );
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("setrecord");
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("setrecord");
+        MobclickAgent.onPause(this);
     }
 }

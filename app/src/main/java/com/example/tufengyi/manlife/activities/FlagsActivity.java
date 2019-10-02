@@ -37,6 +37,7 @@ import com.example.tufengyi.manlife.db.SPManager;
 import com.example.tufengyi.manlife.utils.RedirectInterceptor;
 import com.example.tufengyi.manlife.utils.tools.DateUtil;
 import com.example.tufengyi.manlife.view.swipe.SwipeRefreshLayout;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -698,6 +699,11 @@ public class FlagsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if(viewHolder.btn_likes.isEnabled()) {
+
+                            //点赞埋点
+                            MobclickAgent.onEvent(FlagsActivity.this,"likenumber");
+
+
                             viewHolder.btn_likes.setBackgroundResource(R.drawable.afterlike);
                             viewHolder.btn_likes.setEnabled(false);
                             flag.setCanLike(false);
@@ -964,6 +970,9 @@ public class FlagsActivity extends AppCompatActivity {
 //                tv.setText(""+(flag.getComments()+1));
 //                btn_comments.setBackgroundResource(R.drawable.commentlight);
 
+                //评论埋点
+                MobclickAgent.onEvent(FlagsActivity.this,"commentnumber");
+
 //                postComment();
                 new Thread(){
                     @Override
@@ -1078,5 +1087,19 @@ public class FlagsActivity extends AppCompatActivity {
             }
         }, cnt );
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Flag");
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Flag");
+        MobclickAgent.onPause(this);
     }
 }

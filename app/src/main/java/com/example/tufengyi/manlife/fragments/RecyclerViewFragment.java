@@ -31,10 +31,12 @@ import com.example.tufengyi.manlife.utils.dao.DailyAssDao;
 //import com.example.tufengyi.manlife.utils.helper.PunchedAssHelper;
 import com.example.tufengyi.manlife.utils.tools.DateUtil;
 import com.example.tufengyi.manlife.view.SwipeItemLayout;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.Call;
@@ -191,6 +193,12 @@ public class RecyclerViewFragment extends Fragment {
                     if(mDailyAss_temp.getFinish().equals("no")){
 
                     }else{
+                        //取消打卡埋点
+                        HashMap<String,String> map = new HashMap<String,String>();
+                        map.put("type","cancel");
+                        MobclickAgent.onEvent(mContext,"deleterecordclick",map);
+
+
                         mDailyAss_temp.setFinish("no");
                         //如果已完成，那么可以取消签到
                         StringBuffer sb = new StringBuffer();
@@ -271,7 +279,7 @@ public class RecyclerViewFragment extends Fragment {
 
 
                     }else {
-                        mDailyAss_temp.setFinish("yes");
+
                         if (up) {
                             sp.play(music, 1, 1, 0, 0, 1);
                         }
@@ -305,6 +313,12 @@ public class RecyclerViewFragment extends Fragment {
                                 mDailyAss_temp.getTitle(), mDailyAss_temp.getIcon(),
                                 "yes", mDailyAss_temp.getProgress() + 1);
                         dailyAssDao.update(dailyAss_temp);
+
+                        //打卡埋点 1.打卡天数 2.打卡总数
+                        HashMap<String,String> map = new HashMap<>();
+                        map.put("type","sign");
+                        map.put("count",String.valueOf(mDailyAss_temp.getProgress()));//天数
+                        MobclickAgent.onEvent(mContext,"recordtime",map);//打卡天数
 
 
                         //这里进行post更新
@@ -448,6 +462,9 @@ public class RecyclerViewFragment extends Fragment {
                     if(response.isSuccessful()) {
                         final String string = response.body().string();
                         Log.d("TestRoutine", "postLog success" + string);
+
+                        dailyAssignment.setFinish("yes");
+
                         //修改dailyAssignment的数据
                         getActivity().runOnUiThread(new Runnable() {
                             @Override

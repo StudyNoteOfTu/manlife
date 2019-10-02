@@ -2,12 +2,17 @@ package com.example.tufengyi.manlife;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Debug;
+import android.os.Environment;
 import android.util.Log;
 
 import com.example.tufengyi.manlife.bean.CommentOfFlag;
 import com.example.tufengyi.manlife.bean.DailyAssignment;
 import com.example.tufengyi.manlife.bean.Flag;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.commonsdk.UMConfigure;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +58,6 @@ public class MyApplication extends Application {
     public void setComments(List<CommentOfFlag> comments){
         this.comments.clear();
         this.comments.addAll(comments);
-        Log.d("TestFlag","comment size"+this.comments.size());
     }
 
     public List<CommentOfFlag> getComments(){
@@ -63,7 +67,6 @@ public class MyApplication extends Application {
     public void setList(List<DailyAssignment> dailyAssignments){
         this.dailyAssignments.clear();
         this.dailyAssignments.addAll(dailyAssignments);
-        Log.d("TestPreview","list size"+this.dailyAssignments.size());
     }
 
     public List<DailyAssignment> getList(){
@@ -75,5 +78,11 @@ public class MyApplication extends Application {
         super.onCreate();
         instance  = this;
         context = getApplicationContext();
+
+        //在application中 尽量不要有过多的操作，可以放到需要埋点的操作开始之前进行初始化
+        UMConfigure.init(this,"5cf21e880cafb22e76000b18","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
+        //MobclickAgent.openActivityDurationTrack(false);
+        MobclickAgent.setDebugMode(true);
+
     }
 }
